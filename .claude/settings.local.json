@@ -1,7 +1,17 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:ai.pydantic.dev)"
+      "WebFetch(domain:ai.pydantic.dev)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(where nlm:*)",
+      "Bash(PYTHONUTF8=1 nlm auth status 2>&1)",
+      "Bash(PYTHONUTF8=1 nlm source list --notebook 29a6c8f8-8962-40b6-927e-ef8e8d87a749 --json)",
+      "Bash(python -c \"import sys,json; data=json.load\\(sys.stdin\\); print\\(len\\(data\\), ''''sources''''\\)\")",
+      "Bash(PYTHONUTF8=1 nlm source list --notebook 29a6c8f8-8962-40b6-927e-ef8e8d87a749)",
+      "Bash(PYTHONUTF8=1 nlm source list --help 2>&1)",
+      "Bash(PYTHONUTF8=1 nlm source list 29a6c8f8-8962-40b6-927e-ef8e8d87a749 --json)"
     ]
   }
 }
