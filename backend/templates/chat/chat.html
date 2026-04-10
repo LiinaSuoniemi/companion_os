@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block title %}Companion OS{% endblock %}
+
+{% block extra_css %}
+<style>
+    /*
+     * Chat layout: three vertical zones.
+     * 1. Mode bar — top, fixed height, shows current mode
+     * 2. Message area — fills all remaining space, scrollable
+     * 3. Input bar — bottom, fixed height, always visible
+     *
+     * Why fixed header/footer with scrollable middle?
+     * Because the input must always be reachable on mobile without scrolling.
+     * On phones, the keyboard pushes the viewport up — we want the input
+     * to stay at the bottom of the visible area, not disappear off screen.
+     */
+
+    body {
+        overflow: hidden; /* prevent page scroll — only the message area scrolls */
+    }
+
+    .chat-layout {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        height: 100dvh; /* dvh = dynamic viewport height — accounts for mobile browser chrome */
+    }
+
+    /* ── Mode bar ── */
+    .mode-bar {
+        flex-shrink: 0;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--color-border);
+        background-color: var(--color-surface);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .mode-badge {
+        font-family: var(--font-heading);
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--color-text-muted);
+        background-color: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 20px;
+        padding: 0.25rem 0.75rem;
+    }
+
+    .signout-link {
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+        text-decoration: none;
+    }
+
+    .signout-link:hover {
+        color: var(--color-text);
+    }
+
+    /* ── Message area ── */
+    .message-area {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* Empty state */
+    .empty-state {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: var(--color-text-muted);
+        padding: 2rem;
+    }
+
+    .empty-state p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        max-width: 280px;
+    }
+
+    /* Message bubbles */
+    .message {
+        max-width: 78%;
+        padding: 0.75rem 1rem;
+        border-radius: 16px;
+        line-height: 1.6;
+        font-size: 1rem;
+        word-wrap: break-word;
+    }
+
+    .message-user {
+        align-self: flex-end;
+        background-color: var(--color-accent);
+        color: #FDFAF5;
+        border-bottom-right-radius: 4px;
+    }
+
+    .message-assistant {
+        align-self: flex-start;
+        background-color: var(--color-surface);
+        color: var(--color-text);
+        border: 1px solid var(--color-border);
+        border-bottom-left-radius: 4px;
+    }
+
+    /* ── Input bar ── */
+    .input-bar {
+        flex-shrink: 0;
+        padding: 0.875rem 1rem;
+        border-top: 1px solid var(--color-border);
+        background-color: var(--color-surface);
+    }
+
+    .input-row {
+        display: flex;
+        gap: 0.5rem;
+        align-items: flex-end;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .message-input {
+        flex: 1;
+        border: 1px solid var(--color-border);
+        border-radius: 20px;
+        padding: 0.625rem 1rem;
+        font-family: var(--font-body);
+        font-size: 1rem;
+        background-color: var(--color-bg);
+        color: var(--color-text);
+        resize: none;
+        line-height: 1.5;
+        max-height: 120px;
+        overflow-y: auto;
+    }
+
+    .message-input:focus {
+        outline: none;
+        border-color: var(--color-accent);
+        box-shadow: 0 0 0 3px rgba(139, 111, 78, 0.12);
+    }
+
+    .message-input::placeholder {
+        color: var(--color-text-muted);
+    }
+
+    .send-btn {
+        flex-shrink: 0;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background-color: var(--color-accent);
+        border: none;
+        color: #FDFAF5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+    }
+
+    .send-btn:hover {
+        background-color: #7a6044;
+    }
+
+    .send-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-layout">
+
+    <!-- Top bar -->
+    <div class="mode-bar">
+        <span style="font-family: var(--font-heading); font-size: 0.85rem; font-weight: 500; color: var(--color-text-muted);">Companion</span>
+
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <!-- New conversation — POST because it changes state -->
+            <form method="post" action="{% url 'chat:new_conversation' %}" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" class="signout-link" style="background: none; border: none; cursor: pointer; padding: 0;">
+                    New chat
+                </button>
+            </form>
+
+            <form method="post" action="{% url 'accounts:logout' %}" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" class="signout-link" style="background: none; border: none; cursor: pointer; padding: 0;">
+                    Sign out
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Message area -->
+    <div class="message-area" id="messageArea">
+
+        {% if not messages %}
+        <!-- Empty state — shown when there are no messages yet -->
+        <div class="empty-state">
+            <p>What's happening right now?</p>
+        </div>
+        {% else %}
+        <!-- Message bubbles -->
+        {% for message in messages %}
+        <div class="message message-{{ message.role }}">
+            {{ message.content|linebreaksbr }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+    </div>
+
+    <!-- Input bar -->
+    <div class="input-bar">
+        <!-- Mode indicator — sits above the input, quiet and informational -->
+        <div style="text-align: center; margin-bottom: 0.5rem;">
+            <span class="mode-badge">{{ conversation.active_mode }}</span>
+        </div>
+        <form method="post" class="input-row" id="chatForm">
+            {% csrf_token %}
+            <textarea
+                name="message"
+                id="messageInput"
+                class="message-input"
+                placeholder="What's on your mind?"
+                rows="1"
+                autocomplete="off"
+                autofocus
+            ></textarea>
+            <button type="submit" class="send-btn" id="sendBtn" aria-label="Send message">
+                <!-- Send arrow icon -->
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Scroll to the bottom of the message area on page load
+    // so the most recent message is always visible
+    const messageArea = document.getElementById('messageArea');
+    messageArea.scrollTop = messageArea.scrollHeight;
+
+    // Auto-grow the textarea as the user types
+    // A single-line input feels cramped for emotional messages
+    const input = document.getElementById('messageInput');
+    input.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+
+    // Send on Enter, new line on Shift+Enter
+    // Standard chat behaviour — matches every messaging app the user already knows
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (this.value.trim()) {
+                document.getElementById('chatForm').submit();
+            }
+        }
+    });
+
+    // Disable send button if input is empty
+    const sendBtn = document.getElementById('sendBtn');
+    input.addEventListener('input', function () {
+        sendBtn.disabled = !this.value.trim();
+    });
+    sendBtn.disabled = true; // disabled on load
+</script>
+{% endblock %}
