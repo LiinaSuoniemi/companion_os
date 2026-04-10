@@ -1,3 +1,14 @@
 .env
 __pycache__/
 *.pyc
+*.pyo
+.claude/settings.local.json
+KILL.md
+
+# Django
+backend/staticfiles/
+backend/media/
+*.sqlite3
+
+# Docker
+postgres_data/

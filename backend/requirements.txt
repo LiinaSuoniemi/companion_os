@@ -1,0 +1,19 @@
+# Django core
+Django==4.2.11
+gunicorn==21.2.0
+
+# PostgreSQL driver
+psycopg2-binary==2.9.9
+
+# Environment variables
+python-dotenv==1.0.1
+
+# Anthropic API
+anthropic==0.25.0
+
+# Redis (for session tracking and security attempt counters)
+redis==5.0.3
+
+# Production only
+dj-database-url==2.1.0
+whitenoise==6.6.0

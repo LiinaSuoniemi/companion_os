@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+
+  # The Django application
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      # Mount local backend/ folder into the container
+      # This means changes you make locally appear immediately — no rebuild needed
+      - ./backend:/app
+    ports:
+      # Map container port 8000 to your local port 8000
+      # So you open localhost:8000 in your browser
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.development
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - POSTGRES_DB=companion_os
+      - POSTGRES_USER=companion
+      - POSTGRES_PASSWORD=companion_dev_password
+      - POSTGRES_HOST=db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  # PostgreSQL database
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=companion_os
+      - POSTGRES_USER=companion
+      - POSTGRES_PASSWORD=companion_dev_password
+    volumes:
+      # Persist database data between container restarts
+      # Without this, your database is wiped every time you stop Docker
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # Django waits for this check to pass before starting
+      # Prevents "database not ready" errors on first run
+      test: ["CMD-SHELL", "pg_isready -U companion -d companion_os"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis — session tracking and security counters
+  redis:
+    image: redis:7-alpine
+    # alpine = tiny image, no extras
+
+volumes:
+  # Named volume so Postgres data survives container restarts
+  postgres_data:
