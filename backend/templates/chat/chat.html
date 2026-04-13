@@ -228,7 +228,7 @@
     <div class="input-bar">
         <!-- Mode indicator — sits above the input, quiet and informational -->
         <div style="text-align: center; margin-bottom: 0.5rem;">
-            <span class="mode-badge">{{ conversation.active_mode }}</span>
+            <span class="mode-badge" id="modeBadge">{{ conversation.active_mode }}</span>
         </div>
         <form method="post" class="input-row" id="chatForm">
             {% csrf_token %}
@@ -256,35 +256,144 @@
 
 {% block extra_js %}
 <script>
-    // Scroll to the bottom of the message area on page load
-    // so the most recent message is always visible
     const messageArea = document.getElementById('messageArea');
+    const input = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const modeBadge = document.getElementById('modeBadge');
+    const streamUrl = "{% url 'chat:stream' %}";
+    const csrfToken = "{{ csrf_token }}";
+
+    // Scroll to bottom
     messageArea.scrollTop = messageArea.scrollHeight;
 
-    // Auto-grow the textarea as the user types
-    // A single-line input feels cramped for emotional messages
-    const input = document.getElementById('messageInput');
+    // Auto-grow textarea
     input.addEventListener('input', function () {
         this.style.height = 'auto';
         this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        sendBtn.disabled = !this.value.trim();
     });
+    sendBtn.disabled = true;
 
     // Send on Enter, new line on Shift+Enter
-    // Standard chat behaviour — matches every messaging app the user already knows
     input.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            if (this.value.trim()) {
-                document.getElementById('chatForm').submit();
+            if (this.value.trim() && !sendBtn.disabled) {
+                sendMessage();
             }
         }
     });
 
-    // Disable send button if input is empty
-    const sendBtn = document.getElementById('sendBtn');
-    input.addEventListener('input', function () {
-        sendBtn.disabled = !this.value.trim();
+    // Send button click
+    sendBtn.addEventListener('click', function () {
+        if (input.value.trim()) sendMessage();
     });
-    sendBtn.disabled = true; // disabled on load
+
+    function sendMessage() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        // Remove empty state if visible
+        const emptyState = messageArea.querySelector('.empty-state');
+        if (emptyState) emptyState.remove();
+
+        // Add user bubble immediately — no waiting
+        appendBubble('user', text);
+
+        // Clear and reset input
+        input.value = '';
+        input.style.height = 'auto';
+        sendBtn.disabled = true;
+
+        // Create empty assistant bubble that will fill in as tokens arrive
+        const assistantBubble = appendBubble('assistant', '');
+        // Show a subtle typing indicator while waiting for first token
+        assistantBubble.innerHTML = '<span style="opacity:0.4;">...</span>';
+
+        // Send message to streaming endpoint
+        fetch(streamUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({ message: text }),
+        }).then(response => {
+            /*
+             * Why ReadableStream and not EventSource?
+             * EventSource only supports GET requests.
+             * We need POST (to send the message body securely with CSRF).
+             * ReadableStream reads SSE from a fetch response — same format, POST compatible.
+             */
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            let fullText = '';
+
+            function read() {
+                reader.read().then(({ done, value }) => {
+                    if (done) return;
+
+                    buffer += decoder.decode(value, { stream: true });
+
+                    // SSE events are separated by double newlines
+                    const parts = buffer.split('\n\n');
+                    buffer = parts.pop(); // keep incomplete chunk in buffer
+
+                    parts.forEach(part => {
+                        if (!part.startsWith('data: ')) return;
+                        try {
+                            const data = JSON.parse(part.slice(6));
+
+                            if (data.token) {
+                                // First token — clear the typing indicator
+                                if (fullText === '') assistantBubble.innerHTML = '';
+                                fullText += data.token;
+                                assistantBubble.textContent = fullText;
+                                // Scroll to bottom as text arrives
+                                messageArea.scrollTop = messageArea.scrollHeight;
+                            }
+
+                            if (data.done) {
+                                // Update mode badge if mode changed
+                                if (data.mode && modeBadge) {
+                                    modeBadge.textContent = data.mode;
+                                }
+                                // Re-enable input
+                                sendBtn.disabled = false;
+                                input.focus();
+                            }
+
+                            if (data.error) {
+                                assistantBubble.textContent = 'Something went wrong. Try again.';
+                                assistantBubble.style.opacity = '0.6';
+                                sendBtn.disabled = false;
+                            }
+
+                        } catch (e) {
+                            // Malformed JSON chunk — skip it
+                        }
+                    });
+
+                    read(); // continue reading
+                });
+            }
+
+            read();
+        }).catch(() => {
+            assistantBubble.textContent = 'Could not connect. Try again.';
+            assistantBubble.style.opacity = '0.6';
+            sendBtn.disabled = false;
+        });
+    }
+
+    function appendBubble(role, text) {
+        const bubble = document.createElement('div');
+        bubble.className = `message message-${role}`;
+        bubble.textContent = text;
+        messageArea.appendChild(bubble);
+        messageArea.scrollTop = messageArea.scrollHeight;
+        return bubble;
+    }
 </script>
 {% endblock %}
