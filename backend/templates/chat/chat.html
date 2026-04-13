@@ -228,7 +228,27 @@
     <div class="input-bar">
         <!-- Mode indicator — sits above the input, quiet and informational -->
         <div style="text-align: center; margin-bottom: 0.5rem;">
-            <span class="mode-badge" id="modeBadge">{{ conversation.active_mode }}</span>
+            <span class="mode-badge" id="modeBadge">
+            {% if conversation.active_mode == "auto" %}Listening
+            {% elif conversation.active_mode == "calm" %}With you
+            {% elif conversation.active_mode == "mindfulness" %}Breathing
+            {% elif conversation.active_mode == "urge_support" %}Here with you
+            {% elif conversation.active_mode == "reality_check" %}Let's look at this
+            {% elif conversation.active_mode == "focus" %}One step
+            {% elif conversation.active_mode == "planning" %}Planning
+            {% elif conversation.active_mode == "decision" %}Deciding
+            {% elif conversation.active_mode == "reflection" %}Reflecting
+            {% elif conversation.active_mode == "boundary" %}Holding ground
+            {% elif conversation.active_mode == "daily" %}Just here
+            {% elif conversation.active_mode == "study" %}Learning
+            {% elif conversation.active_mode == "read" %}Reading
+            {% elif conversation.active_mode == "listen" %}Listening
+            {% elif conversation.active_mode == "express" %}Finding words
+            {% elif conversation.active_mode == "feedback" %}Looking clearly
+            {% elif conversation.active_mode == "habit_aim" %}Building
+            {% elif conversation.active_mode == "help" %}Orienting
+            {% else %}{{ conversation.active_mode }}{% endif %}
+        </span>
         </div>
         <form method="post" class="input-row" id="chatForm">
             {% csrf_token %}
@@ -357,7 +377,27 @@
                             if (data.done) {
                                 // Update mode badge if mode changed
                                 if (data.mode && modeBadge) {
-                                    modeBadge.textContent = data.mode;
+                                    const modeNames = {
+                                        "auto": "Listening",
+                                        "calm": "With you",
+                                        "mindfulness": "Breathing",
+                                        "urge_support": "Here with you",
+                                        "reality_check": "Let's look at this",
+                                        "focus": "One step",
+                                        "planning": "Planning",
+                                        "decision": "Deciding",
+                                        "reflection": "Reflecting",
+                                        "boundary": "Holding ground",
+                                        "daily": "Just here",
+                                        "study": "Learning",
+                                        "read": "Reading",
+                                        "listen": "Listening",
+                                        "express": "Finding words",
+                                        "feedback": "Looking clearly",
+                                        "habit_aim": "Building",
+                                        "help": "Orienting",
+                                    };
+                                    modeBadge.textContent = modeNames[data.mode] || data.mode;
                                 }
                                 // Re-enable input
                                 sendBtn.disabled = false;
