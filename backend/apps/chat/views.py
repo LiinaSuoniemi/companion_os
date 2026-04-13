@@ -10,6 +10,7 @@ Why keep the non-streaming POST at all?
 As a fallback. If JavaScript is disabled or fails, the form still works.
 Streaming is an enhancement on top of a working base.
 """
+import hashlib
 import json
 import anthropic
 from django.conf import settings
@@ -21,7 +22,33 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import Conversation, Message
-from .prompts import detect_mode, get_system_prompt
+from .prompts import detect_mode, get_system_prompt, CRISIS_KEYWORDS
+from apps.safety.models import SafetyEvent
+
+# Maximum message length — prevents context window abuse and protects API budget.
+# 2000 characters is roughly 500 words. Enough for any real message.
+# A user in crisis does not need to send an essay.
+MAX_MESSAGE_LENGTH = 2000
+
+
+def _log_crisis_event(user, message_text):
+    """
+    Create a SafetyEvent when crisis keywords are detected.
+
+    Why hash the signal?
+    We record that a crisis keyword was present — not what the user said.
+    If this database is ever subpoenaed or breached, there is nothing here
+    that identifies the content of the conversation. GDPR-safe by design.
+
+    Tier 3 = immediate danger. Crisis keywords always map to the highest tier
+    because we cannot distinguish severity from a keyword match alone.
+    """
+    signal_hash = hashlib.sha256(message_text.lower().encode()).hexdigest()
+    SafetyEvent.objects.create(
+        user=user,
+        tier=3,
+        signal_hash=signal_hash,
+    )
 
 
 @method_decorator(login_required, name="dispatch")
@@ -70,6 +97,13 @@ class ChatView(View):
         if new_mode != conversation.active_mode:
             conversation.active_mode = new_mode
             conversation.save()
+
+        # Log crisis event if crisis keywords were detected.
+        # We check the message directly rather than relying on the mode
+        # because the mode may already be "calm" from a previous message.
+        message_lower = user_input.lower()
+        if any(kw in message_lower for kw in CRISIS_KEYWORDS):
+            _log_crisis_event(request.user, user_input)
 
         Message.objects.create(
             conversation=conversation,
@@ -145,6 +179,12 @@ class StreamView(View):
                 content_type="text/event-stream",
             )
 
+        if len(user_input) > MAX_MESSAGE_LENGTH:
+            return StreamingHttpResponse(
+                self._error_stream("Message too long. Please keep messages under 2000 characters."),
+                content_type="text/event-stream",
+            )
+
         conversation = self.get_or_create_conversation(request.user)
 
         # Detect and update mode
@@ -152,6 +192,11 @@ class StreamView(View):
         if new_mode != conversation.active_mode:
             conversation.active_mode = new_mode
             conversation.save()
+
+        # Log crisis event if crisis keywords detected
+        message_lower = user_input.lower()
+        if any(kw in message_lower for kw in CRISIS_KEYWORDS):
+            _log_crisis_event(request.user, user_input)
 
         # Save user message
         Message.objects.create(

@@ -10,6 +10,6 @@ With ASGI, the response appears word by word in real time, like the Streamlit ve
 import os
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.development")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.production")
 
 application = get_asgi_application()
