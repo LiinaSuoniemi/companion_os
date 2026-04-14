@@ -12,7 +12,10 @@ Streaming is an enhancement on top of a working base.
 """
 import hashlib
 import json
+import logging
 import anthropic
+
+logger = logging.getLogger(__name__)
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import StreamingHttpResponse
@@ -258,8 +261,9 @@ class StreamView(View):
             # Send mode so the UI can update the mode badge
             yield f"data: {json.dumps({'done': True, 'mode': conversation.active_mode})}\n\n"
 
-        except Exception as e:
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+        except Exception:
+            logger.exception("Claude streaming error in conversation %s", conversation.pk)
+            yield f"data: {json.dumps({'error': 'Something went wrong. Please try again.'})}\n\n"
 
     def _error_stream(self, message):
         yield f"data: {json.dumps({'error': message})}\n\n"

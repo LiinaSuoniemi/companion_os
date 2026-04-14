@@ -23,7 +23,8 @@ CRITICAL RULES — apply to every mode, no exceptions:
 # These rules apply in every mode. Each mode prompt includes them.
 
 BASE_RULES = """
-You are Companion. You speak like a calm, grounded person — not an AI assistant, not a therapist, not a tool.
+You are Companion. You are an AI. You are not a human.
+You speak like a calm, grounded person — not a customer service bot, not a therapist, not a tool.
 
 Rules you never break:
 No bullet points. No numbered lists. No bold text. No headers. No markdown.
@@ -85,24 +86,27 @@ MINDFULNESS_TRIGGERS = [
     "stressi", "ahdistus", "rentoudu", "hengitys",
 ]
 
-# ── URGE SUPPORT MODE ─────────────────────────────────────────────────────────
+# ── STEADY MODE ───────────────────────────────────────────────────────────────
 
-URGE_SUPPORT_PROMPT = BASE_RULES + """
-Current mode: Urge Support Mode.
+STEADY_PROMPT = BASE_RULES + """
+Current mode: Steady Mode.
 
-The person is struggling with a craving or urge. Your job is to help them get through the next few minutes.
+The person is in a strong moment — a powerful pull toward something they are struggling not to act on right now. Your only job is to help them get through the next few minutes.
 
 How you work:
-No judgment. None. The urge is not a moral failure.
-Acknowledge what they are going through. Name it without shame.
-Help them understand that urges peak and pass. They are survivable.
+No judgment. None. Being pulled toward something does not say anything about who they are.
+Acknowledge what they are going through. Name it simply, without shame.
+Help them remember that strong moments peak and pass. This is survivable.
 Offer to stay with them through it. One moment at a time.
 Do not problem-solve. Do not list reasons not to act on it. Just be present.
+
+If the pull is toward hurting another person: do not apply this approach. Stay calm, acknowledge what they said, and gently say that talking to a professional would help more right now.
 """
 
-URGE_SUPPORT_TRIGGERS = [
-    "craving", "urge", "want to use", "want to drink", "want to cut",
-    "want to hurt myself", "relapse", "about to", "can't stop myself",
+STEADY_TRIGGERS = [
+    "craving", "urge", "want to use", "want to drink", "relapse",
+    "can't stop myself", "trying not to", "trying to resist",
+    "about to give in", "fighting it", "can't resist",
     "himu", "halu", "en pysty vastustamaan",
 ]
 
@@ -455,7 +459,7 @@ Only describe what you can help with if they ask, or if they stay stuck after on
 ALL_MODES = {
     "calm":         (CALM_PROMPT,            CALM_TRIGGERS),
     "mindfulness":  (MINDFULNESS_PROMPT,     MINDFULNESS_TRIGGERS),
-    "urge_support": (URGE_SUPPORT_PROMPT,    URGE_SUPPORT_TRIGGERS),
+    "steady":        (STEADY_PROMPT,           STEADY_TRIGGERS),
     "reality_check":(REALITY_CHECK_PROMPT,   REALITY_CHECK_TRIGGERS),
     "focus":        (FOCUS_PROMPT,           FOCUS_TRIGGERS),
     "planning":     (PLANNING_PROMPT,        PLANNING_TRIGGERS),
@@ -474,10 +478,19 @@ ALL_MODES = {
 
 # Crisis keywords always override any mode and shift to Calm
 CRISIS_KEYWORDS = [
+    # English — direct
     "want to die", "kill myself", "end my life", "suicide", "self-harm",
     "hurt myself", "not worth living", "can't go on",
+    "want to cut", "cutting myself",
+    # English — indirect despair (these are how people in crisis often speak)
+    "don't want to be here anymore", "what's the point anymore",
+    "no point anymore", "nobody would care", "i'm a burden",
+    "better off without me",
+    # Finnish
     "haluan kuolla", "tapan itseni", "itsemurhaa", "viiltely",
-    "tahan surra", "tahan end",
+    # Estonian
+    "tahan surra", "tahan lõpetada", "tahan ennast tappa",
+    "ei taha enam elada", "enesevigastamine",
 ]
 
 
@@ -501,6 +514,24 @@ def detect_mode(user_message: str, current_mode: str) -> str:
     # Crisis always wins
     if any(kw in message_lower for kw in CRISIS_KEYWORDS):
         return "calm"
+
+    # Calm mode is sticky — once in crisis, stay there until a recovery signal appears.
+    # Why: a person in crisis might mention a topic word ("I need to study for work")
+    # that would normally trigger another mode. Without this gate, they'd exit crisis
+    # support mid-conversation. Recovery signals are plain phrases people naturally use
+    # when they've settled.
+    if current_mode == "calm":
+        recovery_signals = [
+            "i'm okay", "im okay", "i am okay",
+            "feeling better", "i feel better", "feel better now",
+            "i'm fine", "im fine", "i am fine",
+            "calmed down", "calmer now", "okay now",
+            "that helped", "thank you", "thanks",
+            "olen okei", "paremmin", "rauhoituin", "kiitos",
+            "olen parem", "parem nüüd", "aitäh",
+        ]
+        if not any(sig in message_lower for sig in recovery_signals):
+            return "calm"
 
     # Scan for explicit mode triggers
     for mode_name, (_, triggers) in ALL_MODES.items():

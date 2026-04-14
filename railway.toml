@@ -2,6 +2,9 @@
 dockerfilePath = "Dockerfile"
 
 [deploy]
-# Run migrations and collect static files before gunicorn starts.
-# $PORT is injected by Railway automatically — do not hardcode it.
-startCommand = "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --timeout 120 --workers 2"
+# Port is hardcoded to 8000 — matches EXPOSE 8000 in Dockerfile and Railway target port.
+# $PORT was removed because Railway's injected PORT value was not matching the target port
+# setting, causing "Application failed to respond" on every deploy.
+startCommand = "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --timeout 120 --workers 2"
+healthcheckPath = "/accounts/login/"
+healthcheckTimeout = 30
