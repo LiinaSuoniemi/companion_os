@@ -4,6 +4,10 @@ FROM python:3.11-slim
 # Set working directory inside the container
 WORKDIR /app
 
+# Disable Python output buffering — ensures logs appear immediately in Railway
+# Without this, crash output gets stuck in the buffer and never reaches Railway logs
+ENV PYTHONUNBUFFERED=1
+
 # Install system dependencies PostgreSQL needs to compile
 # (psycopg2-binary mostly handles this but this ensures it)
 RUN apt-get update && apt-get install -y \

@@ -9,4 +9,4 @@ dockerfilePath = "Dockerfile"
 # No healthcheckPath — Railway's default TCP port check is used instead.
 # HTTP healthcheck was removed because Django's ALLOWED_HOSTS rejects requests
 # from Railway's internal network IP, causing 400 errors that fail the healthcheck.
-startCommand = "python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --timeout 120 --workers 2"
+startCommand = "python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --timeout 120 --workers 1"
