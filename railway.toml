@@ -5,6 +5,8 @@ dockerfilePath = "Dockerfile"
 # Port is hardcoded to 8000 — matches EXPOSE 8000 in Dockerfile and Railway target port.
 # $PORT was removed because Railway's injected PORT value was not matching the target port
 # setting, causing "Application failed to respond" on every deploy.
+#
+# No healthcheckPath — Railway's default TCP port check is used instead.
+# HTTP healthcheck was removed because Django's ALLOWED_HOSTS rejects requests
+# from Railway's internal network IP, causing 400 errors that fail the healthcheck.
 startCommand = "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --timeout 120 --workers 2"
-healthcheckPath = "/accounts/login/"
-healthcheckTimeout = 30
