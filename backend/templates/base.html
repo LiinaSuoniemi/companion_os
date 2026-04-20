@@ -144,19 +144,34 @@
 
         .crisis-banner {
             flex-shrink: 0;
-            background-color: var(--color-surface);
-            border-bottom: 1px solid var(--color-border);
-            padding: 0.4rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: #D6CCBE;
+            border-bottom: 1px solid #C4B8A8;
+            padding: 0.625rem 1rem;
             text-align: center;
-            font-size: 0.75rem;
-            color: var(--color-text-muted);
-            line-height: 1.5;
+            font-size: 0.95rem;
+            color: #5A4E3E;
+            line-height: 1.6;
             font-family: var(--font-body);
         }
 
+        /* On phone: stack the text and links on separate lines */
+        @media (max-width: 480px) {
+            .crisis-banner {
+                font-size: 0.9rem;
+                padding: 0.625rem 0.75rem;
+            }
+            .crisis-links {
+                display: block;
+                margin-top: 0.25rem;
+            }
+        }
+
         .crisis-banner a {
-            color: var(--color-text);
-            font-weight: 600;
+            color: #3A3028;
+            font-weight: 700;
             text-decoration: underline;
         }
 
@@ -174,11 +189,11 @@
          This is not a feature. It is a safety requirement.
          The AI is not a therapist. Users must always see a path to real help. -->
     <div class="crisis-banner" role="complementary" aria-label="Crisis support information">
-        This is an AI support tool. Not a therapist. Not a substitute for professional help.
-        In crisis, contact:
+        This is an AI, not a therapist. Not a substitute for professional help.
+        <span class="crisis-links">In crisis, contact:
         <a href="tel:112">112</a> (EU) &middot;
         <a href="tel:988">988</a> (US) &middot;
-        <a href="https://findahelpline.com" target="_blank" rel="noopener">Find your helpline</a>
+        <a href="https://findahelpline.com" target="_blank" rel="noopener">Find your helpline</a></span>
     </div>
 
     <main>
