@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %}Conversations — Companion OS{% endblock %}
+
+{% block extra_css %}
+<style>
+    /*
+     * Conversation list: simple, clean, mobile-first.
+     * Each conversation is a card you can tap to open.
+     * New chat button is prominent at the top.
+     */
+
+    body {
+        overflow-y: auto;
+    }
+
+    .conversations-layout {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 1.5rem 1rem;
+    }
+
+    .conversations-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+
+    .conversations-header h1 {
+        font-family: var(--font-heading);
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--color-text);
+        margin: 0;
+    }
+
+    .new-chat-btn {
+        font-family: var(--font-body);
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #FDFAF5;
+        background-color: var(--color-accent);
+        border: none;
+        border-radius: 20px;
+        padding: 0.5rem 1.25rem;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+        text-decoration: none;
+    }
+
+    .new-chat-btn:hover {
+        background-color: #7a6044;
+        color: #FDFAF5;
+    }
+
+    .conversation-card {
+        display: block;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--color-text);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .conversation-card:hover {
+        border-color: var(--color-accent);
+        box-shadow: 0 2px 8px rgba(44, 36, 22, 0.06);
+        color: var(--color-text);
+    }
+
+    .conversation-date {
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+        margin-bottom: 0.25rem;
+    }
+
+    .conversation-preview {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: var(--color-text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .conversation-mode {
+        font-family: var(--font-heading);
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--color-text-muted);
+        margin-top: 0.375rem;
+    }
+
+    .empty-conversations {
+        text-align: center;
+        color: var(--color-text-muted);
+        padding: 3rem 1rem;
+        line-height: 1.8;
+    }
+
+    .signout-row {
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .signout-link {
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+        text-decoration: none;
+    }
+
+    .signout-link:hover {
+        color: var(--color-text);
+    }
+
+    .conversation-card-row {
+        display: flex;
+        align-items: stretch;
+        margin-bottom: 0.75rem;
+        gap: 0.5rem;
+    }
+
+    .delete-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: none;
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        color: var(--color-text-muted);
+        cursor: pointer;
+        transition: color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .delete-btn:hover {
+        color: #c0392b;
+        border-color: #c0392b;
+    }
+
+    .conversation-card {
+        margin-bottom: 0;
+        flex: 1;
+    }
+
+    .action-col {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .edit-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: none;
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        color: var(--color-text-muted);
+        cursor: pointer;
+        transition: color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .edit-btn:hover {
+        color: var(--color-accent);
+        border-color: var(--color-accent);
+    }
+
+    .rename-input {
+        width: 100%;
+        border: 1px solid var(--color-accent);
+        border-radius: 6px;
+        padding: 0.25rem 0.5rem;
+        font-family: var(--font-body);
+        font-size: 0.95rem;
+        line-height: 1.5;
+        background-color: var(--color-bg);
+        color: var(--color-text);
+    }
+
+    .rename-input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(139, 111, 78, 0.15);
+    }
+
+    .rename-save-btn {
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--color-accent);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        margin-top: 0.25rem;
+    }
+
+    .rename-save-btn:hover {
+        color: var(--color-text);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="conversations-layout">
+
+    <!-- Header uses same flex + gap as card rows so edges align -->
+    <div style="display: flex; align-items: center; margin-bottom: 0; gap: 0.5rem;">
+        <div style="flex: 1; display: flex; align-items: center; justify-content: space-between;">
+            <h1 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 600; color: var(--color-text); margin: 0;">Conversations</h1>
+            <form method="post" action="{% url 'chat:new_conversation' %}" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" class="new-chat-btn">New chat</button>
+            </form>
+        </div>
+        <!-- Same width as the action column so "New chat" aligns with card edge -->
+        <div class="action-col" style="visibility: hidden;">
+            <div style="width: 36px; height: 36px;"></div>
+            <div style="width: 36px; height: 36px;"></div>
+        </div>
+    </div>
+
+    {% if conversations %}
+        {% for conv in conversations %}
+        <div class="conversation-card-row">
+            <div class="conversation-card" id="card-{{ conv.pk }}">
+                <div class="conversation-date">{{ conv.started_at|date:"j M Y, H:i" }}</div>
+                <!-- Normal view: preview text, clickable to open conversation -->
+                <a href="{% url 'chat:chat' pk=conv.pk %}" id="preview-{{ conv.pk }}" class="conversation-preview" style="display: block; text-decoration: none; color: inherit;">
+                    {% if conv.title %}
+                        {{ conv.title }}
+                    {% else %}
+                        {% with first_msg=conv.messages.first %}
+                            {% if first_msg %}
+                                {{ first_msg.content|truncatechars:80 }}
+                            {% else %}
+                                Empty conversation
+                            {% endif %}
+                        {% endwith %}
+                    {% endif %}
+                </a>
+                <!-- Edit view: replaces preview when pen is clicked -->
+                <form method="post" action="{% url 'chat:rename_conversation' pk=conv.pk %}" id="rename-{{ conv.pk }}" style="display: none;">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="/chat/?list=1">
+                    <input type="text" name="title" class="rename-input" value="{{ conv.title }}" placeholder="{% with first_msg=conv.messages.first %}{% if first_msg %}{{ first_msg.content|truncatechars:60 }}{% else %}Name this conversation{% endif %}{% endwith %}">
+                    <button type="submit" class="rename-save-btn">Save</button>
+                </form>
+                <div class="conversation-mode">
+                    {% if conv.active_mode == "auto" %}Listening
+                    {% elif conv.active_mode == "calm" %}With you
+                    {% elif conv.active_mode == "mindfulness" %}Breathing
+                    {% elif conv.active_mode == "steady" %}Here with you
+                    {% elif conv.active_mode == "reality_check" %}Let's look at this
+                    {% elif conv.active_mode == "focus" %}One step
+                    {% elif conv.active_mode == "planning" %}Planning
+                    {% elif conv.active_mode == "decision" %}Deciding
+                    {% elif conv.active_mode == "reflection" %}Reflecting
+                    {% elif conv.active_mode == "boundary" %}Holding ground
+                    {% elif conv.active_mode == "daily" %}Just here
+                    {% elif conv.active_mode == "study" %}Learning
+                    {% elif conv.active_mode == "read" %}Reading
+                    {% elif conv.active_mode == "listen" %}Listening
+                    {% elif conv.active_mode == "express" %}Finding words
+                    {% elif conv.active_mode == "feedback" %}Looking clearly
+                    {% elif conv.active_mode == "habit_aim" %}Building
+                    {% elif conv.active_mode == "help" %}Orienting
+                    {% else %}{{ conv.active_mode }}{% endif %}
+                </div>
+            </div>
+            <div class="action-col">
+                <form method="post" action="{% url 'chat:delete_conversation' pk=conv.pk %}" style="margin: 0;"
+                      onsubmit="return confirm('Delete this conversation permanently? This cannot be undone.');">
+                    {% csrf_token %}
+                    <button type="submit" class="delete-btn" aria-label="Delete conversation" title="Delete conversation">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                        </svg>
+                    </button>
+                </form>
+                <button type="button" class="edit-btn" aria-label="Rename conversation" title="Rename conversation"
+                        onclick="var p = document.getElementById('preview-{{ conv.pk }}'); var f = document.getElementById('rename-{{ conv.pk }}'); if(f.style.display === 'none') { p.style.display='none'; f.style.display='block'; f.querySelector('input[name=title]').focus(); } else { p.style.display='block'; f.style.display='none'; }">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-conversations">
+            <p>No conversations yet. Start one.</p>
+        </div>
+    {% endif %}
+
+
+    <div class="signout-row">
+        <form method="post" action="{% url 'accounts:logout' %}" style="margin: 0; display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="signout-link" style="background: none; border: none; cursor: pointer; padding: 0;">
+                Sign out
+            </button>
+        </form>
+        <span style="color: var(--color-border); margin: 0 0.5rem;">·</span>
+        <a href="{% url 'accounts:delete_account' %}" class="signout-link" style="color: #c0392b;">Delete account</a>
+    </div>
+
+</div>
+{% endblock %}

@@ -55,55 +55,146 @@ def _log_crisis_event(user, message_text):
 
 
 @method_decorator(login_required, name="dispatch")
+class ConversationListView(View):
+    """
+    Shows all conversations for the logged-in user.
+    If no conversations exist, creates one and redirects to it.
+
+    Why a list view?
+    Conversation persistence means users need to see and select
+    past conversations. This is the entry point to the chat.
+    """
+    template_name = "chat/conversation_list.html"
+
+    def get(self, request):
+        conversations = Conversation.objects.filter(user=request.user)
+        if not conversations.exists():
+            # First visit ever — create a conversation and go straight to it
+            conversation = Conversation.objects.create(user=request.user)
+            return redirect("chat:chat", pk=conversation.pk)
+
+        # Check if ?list=1 is in the URL — user explicitly wants the full list
+        if request.GET.get("list"):
+            return render(request, self.template_name, {
+                "conversations": conversations,
+            })
+
+        # Default: go straight to the most recent conversation
+        return redirect("chat:chat", pk=conversations.first().pk)
+
+
+@method_decorator(login_required, name="dispatch")
 class NewConversationView(View):
     """
-    Creates a fresh conversation and redirects to chat.
+    Creates a fresh conversation and redirects to it.
     POST only — changing state should never be a GET request.
     """
     def post(self, request):
-        Conversation.objects.create(user=request.user)
-        return redirect("chat:chat")
+        conversation = Conversation.objects.create(user=request.user)
+        return redirect("chat:chat", pk=conversation.pk)
+
+
+@method_decorator(login_required, name="dispatch")
+class RenameConversationView(View):
+    """
+    Renames a conversation. POST only.
+    Only the owner can rename their own conversations.
+    """
+    def post(self, request, pk):
+        try:
+            conversation = Conversation.objects.get(pk=pk, user=request.user)
+        except Conversation.DoesNotExist:
+            return redirect("chat:conversation_list")
+
+        title = request.POST.get("title", "").strip()[:100]
+        conversation.title = title
+        conversation.save(update_fields=["title"])
+
+        # Return to wherever the user came from
+        next_url = request.POST.get("next", "")
+        if next_url:
+            return redirect(next_url)
+        return redirect("/chat/?list=1")
+
+
+@method_decorator(login_required, name="dispatch")
+class DeleteConversationView(View):
+    """
+    Permanently deletes a conversation and all its messages.
+    POST only. Only the owner can delete their own conversations.
+
+    Why permanent deletion?
+    GDPR Article 17 — right to erasure. When a user deletes a conversation,
+    it is gone. Not archived. Not soft-deleted. Gone from the database.
+    Messages are CASCADE-deleted automatically because of the foreign key.
+    """
+    def post(self, request, pk):
+        try:
+            conversation = Conversation.objects.get(pk=pk, user=request.user)
+        except Conversation.DoesNotExist:
+            return redirect("chat:conversation_list")
+
+        conversation.delete()
+        return redirect("/chat/?list=1")
 
 
 @method_decorator(login_required, name="dispatch")
 class ChatView(View):
     """
-    Main chat interface.
-    GET: loads the page with conversation history.
+    Main chat interface — now loads a SPECIFIC conversation by ID.
+    GET: loads the page with that conversation's history.
     POST: non-streaming fallback (used if JS is disabled).
+
+    Why by ID?
+    Conversation persistence means every conversation has its own URL.
+    /chat/5/ always loads conversation 5. Refreshing the page keeps you
+    in the same conversation. Bookmarking works. Back button works.
     """
 
     template_name = "chat/chat.html"
 
-    def get_or_create_conversation(self, user):
-        conversation = Conversation.objects.filter(user=user).first()
-        if not conversation:
-            conversation = Conversation.objects.create(user=user)
-        return conversation
+    def get_conversation(self, user, pk):
+        """
+        Get a specific conversation that belongs to this user.
+        Returns None if the conversation does not exist or belongs to someone else.
+        """
+        try:
+            return Conversation.objects.get(pk=pk, user=user)
+        except Conversation.DoesNotExist:
+            return None
 
-    def get(self, request):
-        conversation = self.get_or_create_conversation(request.user)
+    def get(self, request, pk):
+        conversation = self.get_conversation(request.user, pk)
+        if not conversation:
+            return redirect("chat:conversation_list")
         messages = conversation.messages.all()
+        # Pass recent conversations for the dropdown in the top bar.
+        # Limit to 10 most recent — the "View all" link goes to the full list.
+        user_conversations = Conversation.objects.filter(
+            user=request.user
+        )[:10]
         return render(request, self.template_name, {
             "conversation": conversation,
             "messages": messages,
+            "user_conversations": user_conversations,
         })
 
-    def post(self, request):
+    def post(self, request, pk):
         """Non-streaming fallback — only used if JavaScript is disabled."""
         user_input = request.POST.get("message", "").strip()
         if not user_input:
-            return redirect("chat:chat")
+            return redirect("chat:chat", pk=pk)
 
-        conversation = self.get_or_create_conversation(request.user)
+        conversation = self.get_conversation(request.user, pk)
+        if not conversation:
+            return redirect("chat:conversation_list")
+
         new_mode = detect_mode(user_input, conversation.active_mode)
         if new_mode != conversation.active_mode:
             conversation.active_mode = new_mode
             conversation.save()
 
         # Log crisis event if crisis keywords were detected.
-        # We check the message directly rather than relying on the mode
-        # because the mode may already be "calm" from a previous message.
         message_lower = user_input.lower()
         if any(kw in message_lower for kw in CRISIS_KEYWORDS):
             _log_crisis_event(request.user, user_input)
@@ -135,7 +226,7 @@ class ChatView(View):
             active_mode=conversation.active_mode,
         )
 
-        return redirect("chat:chat")
+        return redirect("chat:chat", pk=pk)
 
 
 @method_decorator(login_required, name="dispatch")
@@ -163,13 +254,13 @@ class StreamView(View):
     5. JS assembles the tokens into the response bubble in real time
     """
 
-    def get_or_create_conversation(self, user):
-        conversation = Conversation.objects.filter(user=user).first()
-        if not conversation:
-            conversation = Conversation.objects.create(user=user)
-        return conversation
+    def get_conversation(self, user, pk):
+        try:
+            return Conversation.objects.get(pk=pk, user=user)
+        except Conversation.DoesNotExist:
+            return None
 
-    def post(self, request):
+    def post(self, request, pk):
         try:
             body = json.loads(request.body)
             user_input = body.get("message", "").strip()
@@ -188,7 +279,12 @@ class StreamView(View):
                 content_type="text/event-stream",
             )
 
-        conversation = self.get_or_create_conversation(request.user)
+        conversation = self.get_conversation(request.user, pk)
+        if not conversation:
+            return StreamingHttpResponse(
+                self._error_stream("Conversation not found."),
+                content_type="text/event-stream",
+            )
 
         # Detect and update mode
         new_mode = detect_mode(user_input, conversation.active_mode)

@@ -176,6 +176,131 @@
         opacity: 0.4;
         cursor: not-allowed;
     }
+
+    /* ── Conversation dropdown ── */
+    .conv-dropdown {
+        position: relative;
+    }
+
+    .conv-dropdown-trigger {
+        cursor: pointer;
+        padding: 0.25rem 0;
+    }
+
+    .conv-dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        padding-top: 0.25rem; /* invisible bridge so mouse can travel from trigger to menu */
+        width: 280px;
+        z-index: 100;
+    }
+
+    .conv-dropdown-inner {
+        max-height: 360px;
+        overflow-y: auto;
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(44, 36, 22, 0.1);
+    }
+
+    .conv-dropdown:hover .conv-dropdown-menu {
+        display: block;
+    }
+
+    .conv-dropdown-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem 0.5rem;
+        font-family: var(--font-heading);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-text-muted);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .conv-new-chat-btn {
+        display: block;
+        width: calc(100% - 2rem);
+        margin: 0.625rem 1rem;
+        padding: 0.5rem;
+        font-family: var(--font-body);
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #FDFAF5;
+        background-color: var(--color-accent);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+    }
+
+    .conv-new-chat-btn:hover {
+        background-color: #7a6044;
+    }
+
+    .conv-dropdown-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.625rem 1rem;
+        text-decoration: none;
+        color: var(--color-text);
+        font-size: 0.85rem;
+        border-bottom: 1px solid var(--color-border);
+        transition: background-color 0.1s ease;
+    }
+
+    .conv-dropdown-item:hover {
+        background-color: var(--color-bg);
+        color: var(--color-text);
+    }
+
+    .conv-dropdown-item.conv-active {
+        background-color: var(--color-bg);
+        font-weight: 500;
+    }
+
+    .conv-item-preview {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-right: 0.75rem;
+    }
+
+    .conv-item-date {
+        flex-shrink: 0;
+        font-size: 0.7rem;
+        color: var(--color-text-muted);
+    }
+
+    .conv-dropdown-empty {
+        padding: 1rem;
+        text-align: center;
+        color: var(--color-text-muted);
+        font-size: 0.85rem;
+    }
+
+    .conv-dropdown-all {
+        display: block;
+        padding: 0.625rem 1rem;
+        text-align: center;
+        text-decoration: none;
+        color: var(--color-accent);
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .conv-dropdown-all:hover {
+        background-color: var(--color-bg);
+        color: var(--color-text);
+    }
 </style>
 {% endblock %}
 
@@ -187,13 +312,32 @@
         <span style="font-family: var(--font-heading); font-size: 0.85rem; font-weight: 500; color: var(--color-text-muted);">Companion</span>
 
         <div style="display: flex; gap: 1rem; align-items: center;">
-            <!-- New conversation — POST because it changes state -->
-            <form method="post" action="{% url 'chat:new_conversation' %}" style="margin: 0;">
-                {% csrf_token %}
-                <button type="submit" class="signout-link" style="background: none; border: none; cursor: pointer; padding: 0;">
-                    New chat
-                </button>
-            </form>
+            <!-- Conversation dropdown -->
+            <div class="conv-dropdown">
+                <a href="{% url 'chat:conversation_list' %}?list=1" class="signout-link conv-dropdown-trigger">Conversations</a>
+                <div class="conv-dropdown-menu">
+                    <div class="conv-dropdown-inner">
+                        <div class="conv-dropdown-header">
+                            <span>Your conversations</span>
+                        </div>
+                        {% for conv in user_conversations %}
+                        <a href="{% url 'chat:chat' pk=conv.pk %}" class="conv-dropdown-item {% if conv.pk == conversation.pk %}conv-active{% endif %}">
+                            <span class="conv-item-preview">
+                                {% if conv.title %}{{ conv.title|truncatechars:40 }}{% else %}{% with first_msg=conv.messages.first %}{% if first_msg %}{{ first_msg.content|truncatechars:40 }}{% else %}Empty conversation{% endif %}{% endwith %}{% endif %}
+                            </span>
+                            <span class="conv-item-date">{{ conv.started_at|date:"j M" }}</span>
+                        </a>
+                        {% empty %}
+                        <div class="conv-dropdown-empty">No conversations yet</div>
+                        {% endfor %}
+                        <form method="post" action="{% url 'chat:new_conversation' %}" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="conv-new-chat-btn">Start new conversation</button>
+                        </form>
+                        <a href="{% url 'chat:conversation_list' %}?list=1" class="conv-dropdown-all">View all conversations</a>
+                    </div>
+                </div>
+            </div>
 
             <form method="post" action="{% url 'accounts:logout' %}" style="margin: 0;">
                 {% csrf_token %}
@@ -279,7 +423,7 @@
     const input = document.getElementById('messageInput');
     const sendBtn = document.getElementById('sendBtn');
     const modeBadge = document.getElementById('modeBadge');
-    const streamUrl = "{% url 'chat:stream' %}";
+    const streamUrl = "{% url 'chat:stream' pk=conversation.pk %}";
     const csrfToken = "{{ csrf_token }}";
 
     // Scroll to bottom

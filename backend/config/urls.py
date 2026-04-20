@@ -8,8 +8,8 @@ from django.urls import path, include
 
 
 def home(request):
-    # Home redirects to chat — chat is the product
-    return redirect("chat:chat")
+    # Home redirects to conversation list — the entry point to the product
+    return redirect("chat:conversation_list")
 
 
 urlpatterns = [
