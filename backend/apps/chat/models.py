@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.db import models
 
+from .fields import EncryptedTextField
+
 
 class Conversation(models.Model):
     """
@@ -18,6 +20,12 @@ class Conversation(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,  # delete conversations if user is deleted
         related_name="conversations",
+    )
+    title = models.CharField(
+        max_length=100,
+        blank=True,
+        default="",
+        help_text="User-editable name for this conversation.",
     )
     started_at = models.DateTimeField(auto_now_add=True)
     active_mode = models.CharField(max_length=50, default="auto")
@@ -50,7 +58,7 @@ class Message(models.Model):
         related_name="messages",
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-    content = models.TextField()  # will be encrypted — placeholder for now
+    content = EncryptedTextField()  # encrypted at rest using Fernet
     active_mode = models.CharField(max_length=50, default="auto")
     created_at = models.DateTimeField(auto_now_add=True)
 

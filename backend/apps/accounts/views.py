@@ -6,8 +6,10 @@ For register, either would work. We use CBV here to stay consistent
 with Django's built-in auth views (LoginView, LogoutView) and because
 CBVs are easier to extend later (e.g. adding OAuth on top).
 """
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.utils.decorators import method_decorator
 from django.views import View
 
 from .forms import RegisterForm
@@ -42,3 +44,37 @@ class RegisterView(View):
             return redirect("home")
         # Form invalid — re-render with error messages attached to the form
         return render(request, self.template_name, {"form": form})
+
+
+@method_decorator(login_required, name="dispatch")
+class DeleteAccountView(View):
+    """
+    Permanently deletes the user's account and all associated data.
+    POST only. Requires the user to confirm by typing their username.
+
+    What gets deleted (CASCADE):
+    - All conversations and their messages
+    - SafetyEvent records: user FK set to NULL (audit trail preserved, user unlinked)
+    - The user account itself
+
+    Why permanent?
+    GDPR Article 17 — right to erasure. When a user deletes their account,
+    their data is gone. Not archived. Not recoverable.
+    """
+    template_name = "accounts/delete_account.html"
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        confirmation = request.POST.get("confirmation", "").strip()
+        if confirmation != request.user.username:
+            return render(request, self.template_name, {
+                "error": "The username you entered does not match. Your account was not deleted.",
+            })
+
+        # Delete the user. CASCADE handles conversations and messages.
+        # SafetyEvent.user is SET_NULL so audit records survive.
+        request.user.delete()
+        logout(request)
+        return redirect("accounts:login")

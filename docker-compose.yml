@@ -18,6 +18,7 @@ services:
       - DJANGO_SETTINGS_MODULE=config.settings.development
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - FIELD_ENCRYPTION_KEY=${FIELD_ENCRYPTION_KEY}
       - POSTGRES_DB=companion_os
       - POSTGRES_USER=companion
       - POSTGRES_PASSWORD=companion_dev_password

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Delete account — Companion OS{% endblock %}
+
+{% block content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center px-3">
+    <div class="card w-100" style="max-width: 400px; box-shadow: 0 2px 16px rgba(44,36,22,0.07);">
+        <div class="card-body p-4">
+
+            <h1 class="h4 mb-1 text-center fw-semibold">Delete your account</h1>
+            <p class="text-center mb-4 small" style="color: var(--color-text-muted);">This cannot be undone</p>
+
+            <div class="mb-4 p-3 rounded" style="background: var(--color-bg); border: 1px solid var(--color-border); font-size: 0.85rem; color: var(--color-text); line-height: 1.7;">
+                This will permanently delete:
+                <ul style="margin: 0.5rem 0 0 1.25rem; padding: 0;">
+                    <li>Your account</li>
+                    <li>All your conversations and messages</li>
+                    <li>All your preferences</li>
+                </ul>
+                <div style="margin-top: 0.75rem;">
+                    This action is permanent. There is no way to recover your data after deletion.
+                </div>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-danger py-2 small">{{ error }}</div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="confirmation" class="form-label small fw-medium">
+                        Type your username <strong>{{ user.username }}</strong> to confirm
+                    </label>
+                    <input
+                        type="text"
+                        name="confirmation"
+                        id="confirmation"
+                        class="form-control"
+                        autocomplete="off"
+                        placeholder="{{ user.username }}"
+                    >
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn w-100" style="background-color: #c0392b; color: white; border: none;">
+                        Delete my account permanently
+                    </button>
+                    <a href="{% url 'chat:conversation_list' %}" class="btn btn-outline-secondary w-100" style="font-size: 0.9rem;">
+                        Cancel, take me back
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

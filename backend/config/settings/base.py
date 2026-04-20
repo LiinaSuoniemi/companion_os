@@ -13,6 +13,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Never hardcode this. Never commit this.
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
+# ENCRYPTION: Key for encrypting conversation content at rest.
+# Generate with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+# Must be a URL-safe base64-encoded 32-byte key. Store in environment variables only.
+FIELD_ENCRYPTION_KEY = os.environ.get("FIELD_ENCRYPTION_KEY", "")
+
 # Apps built into Django
 DJANGO_APPS = [
     "django.contrib.admin",

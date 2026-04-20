@@ -33,4 +33,9 @@ urlpatterns = [
         views.RegisterView.as_view(),
         name="register",
     ),
+    path(
+        "delete-account/",
+        views.DeleteAccountView.as_view(),
+        name="delete_account",
+    ),
 ]
