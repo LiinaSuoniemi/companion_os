@@ -429,27 +429,18 @@
     const streamUrl = "{% url 'chat:stream' pk=conversation.pk %}";
     const csrfToken = "{{ csrf_token }}";
 
+    // Fix mobile keyboard: set the layout height to the actual visible viewport
+    function setViewportHeight() {
+        const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        document.querySelector('.page-wrapper').style.height = vh + 'px';
+    }
+    setViewportHeight();
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', setViewportHeight);
+    }
+
     // Scroll to bottom
     messageArea.scrollTop = messageArea.scrollHeight;
-
-    // When keyboard opens on mobile, scroll the input into view
-    input.addEventListener('focus', function () {
-        setTimeout(function () {
-            input.scrollIntoView({ block: 'end', behavior: 'smooth' });
-        }, 300);
-    });
-
-    // Handle mobile visual viewport resize (keyboard open/close)
-    if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', function () {
-            // Scroll input into view when keyboard opens
-            if (document.activeElement === input) {
-                setTimeout(function () {
-                    input.scrollIntoView({ block: 'end', behavior: 'smooth' });
-                }, 100);
-            }
-        });
-    }
 
     // Auto-grow textarea
     input.addEventListener('input', function () {
