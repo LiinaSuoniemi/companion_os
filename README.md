@@ -51,9 +51,9 @@ The AI never pastes a hotline number and goes quiet. When someone says something
 
 ## Status
 
-Early development. Core modes are built and running. Conversation persistence, full UI layer, and Django architecture are in progress.
+Deployed on Railway. Django backend, PostgreSQL, encrypted conversation storage, and trilingual crisis detection are live. Conversation persistence shipped April 2026. Account deletion and GDPR Article 17 compliance built in from the start.
 
-Not yet ready for general use.
+Currently in private pilot preparation. Not yet open to the public. Invite-only access.
 
 ## Built by
 
