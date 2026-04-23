@@ -7,11 +7,12 @@ Django's UserCreationForm already handles:
 - password strength validation
 - duplicate username check
 
-We extend it to add our custom fields (language, voice preference).
+We extend it to add our custom fields (language, voice preference, consent).
 Writing this from scratch would mean reimplementing all of that.
 """
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.utils import timezone
 
 from .models import InviteCode, User
 
@@ -21,8 +22,8 @@ class RegisterForm(UserCreationForm):
     Registration form for new Companion OS users.
 
     Requires a valid invite code. No code = no account.
-    This protects vulnerable users by controlling who has access
-    during early testing and beyond.
+    Requires explicit consent for conversation processing (GDPR Article 9).
+    Optional consent for usage tracking and impact survey.
     """
 
     invite_code = forms.CharField(
@@ -39,6 +40,28 @@ class RegisterForm(UserCreationForm):
             "password1",
             "password2",
         ]
+
+    def clean(self):
+        """Validate that conversation consent is given. Required by GDPR Article 9."""
+        cleaned_data = super().clean()
+        if self.data.get("consent_conversations") != "on":
+            raise forms.ValidationError(
+                "You must consent to conversation processing to create an account. "
+                "Without this consent, Companion OS cannot function."
+            )
+        return cleaned_data
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        # Read consent checkboxes from POST data
+        user.consent_conversations = self.data.get("consent_conversations") == "on"
+        user.consent_usage_tracking = self.data.get("consent_usage_tracking") == "on"
+        user.consent_impact_survey = self.data.get("consent_impact_survey") == "on"
+        if user.consent_conversations:
+            user.consent_given_at = timezone.now()
+        if commit:
+            user.save()
+        return user
 
     def clean_invite_code(self):
         """Validate the invite code exists and is still usable."""
