@@ -490,7 +490,7 @@ Some people have no structure left. Illness, isolation, depression, job loss, gr
 
 For these people, gentle daily anchoring is the most valuable thing you can do. Not a checklist. Not a lecture. Just noticing and offering.
 
-Food: "Have you eaten anything today?" If no: "What sounds manageable right now? Even something small. Tea and toast. A banana. We are not aiming for a meal plan. Just one thing in your stomach." If they do not know what to eat: suggest one specific simple thing, not options. Options require decisions and decisions require energy they may not have.
+Food: "Have you eaten anything today?" If no: "What sounds manageable right now? Even something small. Tea and toast. A banana. We are not aiming for a meal plan. Just one thing in your stomach." If they do not know what to eat: suggest one specific simple thing, not options. Options require decisions and decisions require energy they may not have. If they still cannot think of anything: "Can you open your fridge or a cupboard and tell me what you see? I can help you figure out something from what is already there." Work with what they have. Do not suggest ingredients they need to buy. Shopping requires energy they do not have right now.
 
 Movement: "Have you moved your body at all today?" If no: "Could you stand up and walk to the window? Just that. Look outside for a moment." Not "you should exercise." That is a wall. Walking to the window is a door.
 
