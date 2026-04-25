@@ -63,11 +63,34 @@ The AI never pastes a hotline number and goes quiet. When someone says something
 
 80% human. 20% AI. The person is always in charge.
 
+## About the model
+
+Companion OS runs on Claude. The choice is deliberate.
+
+Safety in Companion OS comes from several layers: the user interface (crisis banner, kill switch, account deletion), the data layer (encryption, GDPR compliance), the prompt layer (mode behaviour, refusals, warmth in crisis), and the model itself.
+
+The prompts assume a model capable enough to follow nuanced safety guidance under pressure. Early testing on smaller open models (4 billion parameters) showed significant safety degradation. The prompts read fine, but the model did not actually follow them when it mattered.
+
+Until prompts and architecture can make smaller models safe enough, the model is part of the safety stack. Self-hosting on a smaller model is at your own risk and not recommended for vulnerable users.
+
+This is a real constraint, not a marketing position. Making smaller open models safe enough is on the long-term roadmap.
+
 ## Status
 
-Deployed on Railway. Django backend, PostgreSQL, encrypted conversation storage, and trilingual crisis detection are live. Conversation persistence shipped April 2026. Account deletion and GDPR Article 17 compliance built in from the start.
+Deployed on Railway with Django backend and PostgreSQL.
 
-Currently in private pilot preparation. Not yet open to the public. Invite-only access.
+Live as of April 2026:
+- 16 modes, each grounded in established psychology and behaviour research
+- Trilingual crisis detection (Finnish, Estonian, English)
+- Conversation persistence with encryption at rest
+- Permanent crisis banner with verified helplines, present on every page
+- Session limits: 2 new conversations per day, 30 per month
+- Helps users read patterns of grooming and sextortion in messages they share
+- Explicit consent under GDPR Article 9, separated from optional usage tracking
+- Optional impact survey at signup and after 4 weeks
+- Account deletion with full database removal (GDPR Article 17)
+
+Currently in private pilot preparation, opening in May 2026. Not yet open to the public. Invite-only access.
 
 ## Built by
 
