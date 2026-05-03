@@ -6,11 +6,11 @@
     <title>{% block title %}Companion OS{% endblock %}</title>
 
     <!-- Google Fonts — loaded before Bootstrap so they're available immediately -->
-    <!-- Atkinson Hyperlegible: body text — designed for readability and different brains -->
-    <!-- Inter: headings — clean, modern, not cold -->
+    <!-- Cormorant Garamond: headings — warm, editorial, human -->
+    <!-- Jost: body — clean and readable without feeling clinical -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -23,15 +23,17 @@
          * every component updates automatically. No hunting through stylesheets.
          */
         :root {
-            --color-bg:         #EDE8DF;  /* deeper warm — background sits back, not in your face */
-            --color-surface:    #F7F3ED;  /* card surface — close to background, no harsh jump */
-            --color-text:       #3A3028;  /* warm dark — readable but not harsh */
-            --color-text-muted: #9A8E80;  /* muted — hints, labels, secondary */
-            --color-accent:     #8B6F4E;  /* warm brown — buttons, links, focus */
-            --color-border:     #DDD6C8;  /* border — barely visible, just enough */
+            --color-bg:         #FAF7F2;  /* comp-base — parchment, light and open */
+            --color-surface:    #F5F0E8;  /* comp-base-warm — card surface, one step warmer */
+            --color-text:       #1A1A1A;  /* comp-text — near-black, readable without harshness */
+            --color-text-muted: #4A4540;  /* comp-text-soft — secondary labels, hints */
+            --color-accent:     #C9A84C;  /* comp-gold — buttons, links, focus */
+            --color-accent-dim: #A08030;  /* comp-gold-dim — hover, active states */
+            --color-accent-light: #DFC078; /* comp-gold-light — highlights */
+            --color-border:     #E8E4DC;  /* comp-neutral — borders, dividers */
 
-            --font-body:    'Atkinson Hyperlegible', sans-serif;
-            --font-heading: 'Inter', sans-serif;
+            --font-body:    'Jost', sans-serif;
+            --font-heading: 'Cormorant Garamond', serif;
 
             --text-base:    1rem;        /* 16px minimum — never smaller for body */
             --line-height:  1.6;         /* breathing room between lines */
@@ -74,7 +76,7 @@
             background-color: var(--color-surface);
             border-color: var(--color-accent);
             color: var(--color-text);
-            box-shadow: 0 0 0 3px rgba(139, 111, 78, 0.15);
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.18);
         }
 
         .form-control.is-invalid {
@@ -90,9 +92,10 @@
         .btn-primary-warm {
             background-color: var(--color-accent);
             border-color: var(--color-accent);
-            color: #FDFAF5;
-            font-family: var(--font-heading);
+            color: #1A1A1A;
+            font-family: var(--font-body);
             font-weight: 500;
+            letter-spacing: 0.08em;
             border-radius: 8px;
             padding: 0.625rem 1.25rem;
             font-size: var(--text-base);
@@ -101,19 +104,19 @@
 
         .btn-primary-warm:hover,
         .btn-primary-warm:focus {
-            background-color: #7a6044;
-            border-color: #7a6044;
-            color: #FDFAF5;
+            background-color: var(--color-accent-dim);
+            border-color: var(--color-accent-dim);
+            color: #1A1A1A;
         }
 
         /* Links */
         a {
-            color: var(--color-accent);
+            color: var(--color-accent-dim);
             text-decoration: none;
         }
 
         a:hover {
-            color: #7a6044;
+            color: var(--color-accent);
             text-decoration: underline;
         }
 
@@ -147,12 +150,12 @@
             position: sticky;
             top: 0;
             z-index: 50;
-            background-color: #D6CCBE;
-            border-bottom: 1px solid #C4B8A8;
+            background-color: var(--color-border);
+            border-bottom: 1px solid #D4CFCA;
             padding: 0.625rem 1rem;
             text-align: center;
             font-size: 0.95rem;
-            color: #5A4E3E;
+            color: var(--color-text-muted);
             line-height: 1.6;
             font-family: var(--font-body);
         }
@@ -170,13 +173,13 @@
         }
 
         .crisis-banner a {
-            color: #3A3028;
-            font-weight: 700;
+            color: var(--color-text);
+            font-weight: 500;
             text-decoration: underline;
         }
 
         .crisis-banner a:hover {
-            color: var(--color-accent);
+            color: var(--color-accent-dim);
         }
     </style>
 
