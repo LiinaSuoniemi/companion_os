@@ -16,7 +16,8 @@
      * to stay at the bottom of the visible area, not disappear off screen.
      */
 
-    body {
+    html, body {
+        height: 100%;
         overflow: hidden;
     }
 
@@ -24,14 +25,6 @@
         display: flex;
         flex-direction: column;
         height: 100%;
-    }
-
-    /* On mobile: make the input bar stick to the bottom of the visible area */
-    @media (max-width: 768px) {
-        .input-bar {
-            position: sticky;
-            bottom: 0;
-        }
     }
 
     /* ── Mode bar ── */
@@ -103,14 +96,14 @@
         line-height: 1.6;
         font-size: 1rem;
         word-wrap: break-word;
-        white-space: pre-wrap;
     }
 
     .message-user {
         align-self: flex-end;
         background-color: var(--color-accent);
-        color: #FDFAF5;
+        color: #1A1A1A;
         border-bottom-right-radius: 4px;
+        white-space: pre-wrap;
     }
 
     .message-assistant {
@@ -119,6 +112,19 @@
         color: var(--color-text);
         border: 1px solid var(--color-border);
         border-bottom-left-radius: 4px;
+    }
+
+    /* Paragraph spacing inside Companion's bubbles.
+       Content is rendered via linebreaks filter (plain text → <p> tags).
+       p:empty hides blank paragraphs from double newlines. */
+    .message-assistant p {
+        margin-bottom: 0.5em;
+    }
+    .message-assistant p:last-child {
+        margin-bottom: 0;
+    }
+    .message-assistant p:empty {
+        display: none;
     }
 
     /* ── Input bar ── */
@@ -158,7 +164,7 @@
     .message-input:focus {
         outline: none;
         border-color: var(--color-accent);
-        box-shadow: 0 0 0 3px rgba(139, 111, 78, 0.12);
+        box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.18);
     }
 
     .message-input::placeholder {
@@ -181,7 +187,7 @@
     }
 
     .send-btn:hover {
-        background-color: #7a6044;
+        background-color: var(--color-accent-dim);
     }
 
     .send-btn:disabled {
@@ -253,7 +259,7 @@
     }
 
     .conv-new-chat-btn:hover {
-        background-color: #7a6044;
+        background-color: var(--color-accent-dim);
     }
 
     .conv-dropdown-item {
@@ -375,7 +381,7 @@
         <!-- Message bubbles -->
         {% for message in messages %}
         <div class="message message-{{ message.role }}">
-            {{ message.content }}
+            {% if message.role == "assistant" %}{{ message.content|linebreaks }}{% else %}{{ message.content }}{% endif %}
         </div>
         {% endfor %}
         {% endif %}
@@ -440,6 +446,16 @@
     const modeBadge = document.getElementById('modeBadge');
     const streamUrl = "{% url 'chat:stream' pk=conversation.pk %}";
     const csrfToken = "{{ csrf_token }}";
+
+    // iOS Safari: keyboard opens but window.innerHeight doesn't shrink — visualViewport does.
+    // We resize the page-wrapper to match the actual visible area so the input stays above the keyboard.
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+            const wrapper = document.querySelector('.page-wrapper');
+            if (wrapper) wrapper.style.height = window.visualViewport.height + 'px';
+            messageArea.scrollTop = messageArea.scrollHeight;
+        });
+    }
 
     // Scroll to bottom
     messageArea.scrollTop = messageArea.scrollHeight;
@@ -527,7 +543,7 @@
                                 // First token — clear the typing indicator
                                 if (fullText === '') assistantBubble.innerHTML = '';
                                 fullText += data.token;
-                                assistantBubble.textContent = fullText;
+                                assistantBubble.innerHTML = textToHtml(fullText);
                                 // Scroll to bottom as text arrives
                                 messageArea.scrollTop = messageArea.scrollHeight;
                             }
@@ -585,10 +601,29 @@
         });
     }
 
+    // Convert plain text to safe HTML paragraphs — for assistant bubbles only.
+    // Escapes HTML entities first, then converts \n\n to <p> tags and \n to <br>.
+    function textToHtml(text) {
+        const escaped = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        const paragraphs = escaped.split(/\n\n+/);
+        if (paragraphs.length <= 1) return escaped.replace(/\n/g, '<br>');
+        return paragraphs
+            .filter(p => p.trim())
+            .map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`)
+            .join('');
+    }
+
     function appendBubble(role, text) {
         const bubble = document.createElement('div');
         bubble.className = `message message-${role}`;
-        bubble.textContent = text;
+        if (role === 'assistant') {
+            bubble.innerHTML = textToHtml(text);
+        } else {
+            bubble.textContent = text;
+        }
         messageArea.appendChild(bubble);
         messageArea.scrollTop = messageArea.scrollHeight;
         return bubble;
