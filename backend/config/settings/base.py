@@ -39,6 +39,11 @@ LOCAL_APPS = [
 
 THIRD_PARTY_APPS = [
     "axes",
+    # Admin 2FA — django-two-factor-auth requires these three OTP apps
+    "django_otp",
+    "django_otp.plugins.otp_static",
+    "django_otp.plugins.otp_totp",
+    "two_factor",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS
@@ -56,6 +61,9 @@ MIDDLEWARE = [
     # Brute force protection — must come after AuthenticationMiddleware.
     # Tracks failed login attempts and locks by username.
     "axes.middleware.AxesMiddleware",
+    # OTP verification — marks request.user as OTP-verified when session has valid token.
+    # Must come after AuthenticationMiddleware.
+    "django_otp.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]

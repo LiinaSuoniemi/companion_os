@@ -5,6 +5,13 @@ Every request enters here. Routes are added as apps are built.
 from django.contrib import admin
 from django.shortcuts import redirect, render
 from django.urls import path, include
+from two_factor.admin import AdminSiteOTPRequired
+from two_factor.urls import urlpatterns as tf_urls
+
+# Require TOTP for every admin login. Anyone who reaches /admin/ must
+# have a verified OTP device. Set up a device first via /account/two_factor/setup/
+# while logged in as a regular user, then /admin/ will accept the TOTP code.
+admin.site.__class__ = AdminSiteOTPRequired
 
 
 def home(request):
@@ -13,8 +20,14 @@ def home(request):
 
 
 urlpatterns = [
-    # Django admin — for you to manage the app from a browser
+    # Django admin — protected by TOTP via AdminSiteOTPRequired above
     path("admin/", admin.site.urls),
+
+    # Two-factor auth — login and TOTP device setup/management pages.
+    # Sits at /account/ (singular) — does not conflict with /accounts/ (plural).
+    # Liina must visit /account/two_factor/setup/ to register her TOTP device
+    # before the admin will accept her login.
+    path("", include(tf_urls)),
 
     path("", home, name="home"),
     path("privacy/", lambda request: render(request, "privacy.html"), name="privacy"),

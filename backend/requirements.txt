@@ -20,6 +20,11 @@ cryptography==42.0.5
 # Login brute force protection
 django-axes==7.0.0
 
+# Admin 2FA — TOTP via Google Authenticator
+django-two-factor-auth==1.17.0
+qrcode[pil]==7.4.2
+phonenumbers==8.13.50
+
 # Production only
 dj-database-url==2.1.0
 whitenoise==6.6.0
