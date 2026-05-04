@@ -480,8 +480,8 @@
     // We resize the page-wrapper to match the actual visible area so the input stays above the keyboard.
     if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', () => {
-            const wrapper = document.querySelector('.page-wrapper');
-            if (wrapper) wrapper.style.height = window.visualViewport.height + 'px';
+            const chatLayout = document.querySelector('.chat-layout');
+            if (chatLayout) chatLayout.style.height = window.visualViewport.height + 'px';
             messageArea.scrollTop = messageArea.scrollHeight;
         });
     }
