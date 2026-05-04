@@ -479,16 +479,22 @@
     // iOS Safari: keyboard opens but window.innerHeight doesn't shrink — visualViewport does.
     // We resize the page-wrapper to match the actual visible area so the input stays above the keyboard.
     if (window.visualViewport) {
+        let lastHeight = window.visualViewport.height;
+
         window.visualViewport.addEventListener('resize', () => {
             const chatLayout = document.querySelector('.chat-layout');
+            const currentHeight = window.visualViewport.height;
+
             if (chatLayout) {
-                const keyboardOpen = window.visualViewport.height < window.screen.height * 0.75;
-                if (keyboardOpen) {
-                    chatLayout.style.height = window.visualViewport.height + 'px';
-                } else {
-                    chatLayout.style.height = '';
-                }
+                chatLayout.style.height = currentHeight + 'px';
             }
+
+            // Height increased = keyboard closed — let CSS 100dvh take over
+            if (currentHeight > lastHeight) {
+                if (chatLayout) chatLayout.style.height = '';
+            }
+
+            lastHeight = currentHeight;
             messageArea.scrollTop = messageArea.scrollHeight;
         });
     }
