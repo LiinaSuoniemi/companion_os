@@ -28,6 +28,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Conversation, Message
 from .prompts import detect_mode, get_system_prompt, CRISIS_KEYWORDS
 from apps.safety.models import SafetyEvent
+from apps.usage.models import UsageEvent
 
 # Maximum message length — prevents context window abuse and protects API budget.
 # 2000 characters is roughly 500 words. Enough for any real message.
@@ -311,8 +312,10 @@ class StreamView(View):
         try:
             body = json.loads(request.body)
             user_input = body.get("message", "").strip()
+            call_prep = bool(body.get("call_prep", False))
         except (json.JSONDecodeError, KeyError):
             user_input = ""
+            call_prep = False
 
         if not user_input:
             return StreamingHttpResponse(
@@ -359,7 +362,7 @@ class StreamView(View):
         ]
 
         response = StreamingHttpResponse(
-            self._stream_claude(conversation, history),
+            self._stream_claude(conversation, history, call_prep=call_prep),
             content_type="text/event-stream",
         )
         # These headers keep the connection alive and prevent buffering
@@ -367,7 +370,7 @@ class StreamView(View):
         response["X-Accel-Buffering"] = "no"
         return response
 
-    def _stream_claude(self, conversation, history):
+    def _stream_claude(self, conversation, history, call_prep=False):
         """
         Generator function — yields SSE chunks as Claude streams its response.
 
@@ -383,7 +386,7 @@ class StreamView(View):
             with client.messages.stream(
                 model="claude-sonnet-4-6",
                 max_tokens=1024,
-                system=get_system_prompt(conversation.active_mode),
+                system=get_system_prompt(conversation.active_mode, call_prep=call_prep),
                 messages=history,
             ) as stream:
                 for text in stream.text_stream:
@@ -391,6 +394,10 @@ class StreamView(View):
                     # Send each token as an SSE event
                     # json.dumps handles special characters safely
                     yield f"data: {json.dumps({'token': text})}\n\n"
+
+                # Get token usage before leaving the stream context
+                final_message = stream.get_final_message()
+                output_tokens = final_message.usage.output_tokens if final_message else 0
 
             # Stream complete — save full response to database
             complete_text = "".join(full_response)
@@ -400,6 +407,15 @@ class StreamView(View):
                 content=complete_text,
                 active_mode=conversation.active_mode,
             )
+
+            # Log mode usage event if the user consented to usage tracking
+            if conversation.user.consent_usage_tracking:
+                UsageEvent.objects.create(
+                    user=conversation.user,
+                    event_type="mode_used",
+                    mode=conversation.active_mode,
+                    token_count=output_tokens,
+                )
 
             # Send mode so the UI can update the mode badge
             yield f"data: {json.dumps({'done': True, 'mode': conversation.active_mode})}\n\n"

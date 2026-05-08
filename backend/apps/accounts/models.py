@@ -65,7 +65,6 @@ class User(AbstractUser):
     Why extend AbstractUser instead of using Django's default?
     Because we need fields Django doesn't have by default:
     - language preference (Finnish, Estonian, English)
-    - voice preference (Warm, Sharp, Steady, Spark, Coach)
     - age verification status (for under-18 parental consent flow)
 
     If we used Django's default User and later needed these fields,
@@ -78,23 +77,10 @@ class User(AbstractUser):
         ("en", "English"),
     ]
 
-    VOICE_CHOICES = [
-        ("steady", "Steady"),  # default — calm, no drama
-        ("warm", "Warm"),
-        ("sharp", "Sharp"),
-        ("spark", "Spark"),
-        ("coach", "Coach"),
-    ]
-
     language_preference = models.CharField(
         max_length=2,
         choices=LANGUAGE_CHOICES,
         default="en",
-    )
-    voice_preference = models.CharField(
-        max_length=10,
-        choices=VOICE_CHOICES,
-        default="steady",
     )
     is_age_verified = models.BooleanField(default=False)
     consent_conversations = models.BooleanField(
@@ -208,3 +194,23 @@ class ImpactSurvey(models.Model):
 
     def __str__(self):
         return f"{self.user.username} — {self.survey_type} ({self.created_at:%Y-%m-%d})"
+
+
+class PilotApplication(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("accepted", "Accepted"),
+        ("waitlisted", "Waitlisted"),
+    ]
+
+    name = models.CharField(max_length=200)
+    email = models.EmailField(unique=True)
+    what_brings_you = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.name} ({self.email}) — {self.status}"

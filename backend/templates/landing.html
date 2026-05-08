@@ -1,0 +1,1014 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Companion OS — A thinking partner for when life gets hard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Jost:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #EDE8DF;
+            --color-surface: #FAF7F2;
+            --color-surface-dark: #1A1510;
+            --color-text: #1A1A1A;
+            --color-text-muted: #4A4540;
+            --color-text-light: #F5F0E8;
+            --color-accent: #C9952A;
+            --color-accent-dim: #B8860B;
+            --color-border: #E8E4DC;
+            --font-body: 'Jost', sans-serif;
+            --font-heading: 'Cormorant Garamond', serif;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: var(--font-heading);
+            font-weight: 400;
+        }
+
+        a {
+            color: var(--color-accent-dim);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--color-accent);
+            text-decoration: underline;
+        }
+
+        /* ── NAV ─────────────────────────────── */
+        .landing-nav {
+            background-color: var(--color-surface);
+            box-shadow: 0 1px 0 var(--color-border);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+        }
+
+        .nav-logo img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+        }
+
+        .nav-logo-text {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            color: var(--color-text);
+            letter-spacing: 0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .nav-links a {
+            color: var(--color-text-muted);
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+            text-decoration: none;
+        }
+
+        .btn-nav-menu {
+            background: transparent;
+            border: 1px solid var(--color-border);
+            color: var(--color-text-muted);
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .btn-nav-menu:hover,
+        .btn-nav-menu:focus,
+        .btn-nav-menu.show {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+            outline: none;
+            box-shadow: none;
+        }
+
+        .dropdown-menu {
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 16px rgba(26, 20, 10, 0.12);
+            padding: 0.4rem 0;
+            min-width: 180px;
+        }
+
+        .dropdown-item {
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+            padding: 0.5rem 1.25rem;
+        }
+
+        .dropdown-item:hover,
+        .dropdown-item:focus {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            text-decoration: none;
+        }
+
+        .dropdown-divider {
+            border-color: var(--color-border);
+            margin: 0.3rem 0;
+        }
+
+        .btn-apply {
+            background-color: var(--color-accent);
+            color: #1A1A1A;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            letter-spacing: 0.04em;
+            box-shadow: 0 2px 8px rgba(184, 134, 11, 0.25);
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-apply:hover,
+        .nav-links .btn-apply:hover {
+            background-color: #D4A820;
+            color: #1A1A1A;
+            text-decoration: none;
+        }
+
+        /* ── HERO ────────────────────────────── */
+        .hero {
+            background-color: var(--color-surface-dark);
+            color: var(--color-text-light);
+            text-align: center;
+            padding: 5rem 1.5rem 4rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 300;
+            color: #F5F0E8;
+            margin-bottom: 1.25rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #C8BFA8;
+            max-width: 560px;
+            margin: 0 auto 2rem;
+            line-height: 1.7;
+        }
+
+        .hero-note {
+            font-size: 0.8rem;
+            color: #7A7060;
+            margin-top: 1rem;
+        }
+
+        /* ── SECTIONS ────────────────────────── */
+        .section {
+            padding: 4rem 1.5rem;
+        }
+
+        .section-alt {
+            background-color: var(--color-surface);
+        }
+
+        .section-dark {
+            background-color: #201C16;
+            color: var(--color-text-light);
+        }
+
+        .section-dark h2,
+        .section-dark h3 {
+            color: #F5F0E8;
+        }
+
+        .section-dark p,
+        .section-dark li {
+            color: #C8BFA8;
+        }
+
+        .section-dark .text-muted-land {
+            color: #7A7060;
+        }
+
+        /* Apply section uses the mode card background — easier on the eyes than #201C16 */
+        #apply {
+            background-color: #2A241C;
+        }
+
+        .section-inner {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .section-inner-wide {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--color-accent);
+            margin-bottom: 0.75rem;
+        }
+
+        h2.section-title {
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            font-weight: 300;
+            margin-bottom: 1.25rem;
+            line-height: 1.25;
+        }
+
+        /* ── FOR WHO ─────────────────────────── */
+        .for-who-list {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0 0;
+        }
+
+        .for-who-list li {
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--color-border);
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--color-text-muted);
+        }
+
+        .for-who-list li::before {
+            content: "·";
+            position: absolute;
+            left: 0;
+            color: var(--color-accent);
+            font-size: 1.4rem;
+            line-height: 1.3;
+        }
+
+        /* ── STEPS ───────────────────────────── */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2.5rem;
+        }
+
+        .step {
+            text-align: center;
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 1px solid var(--color-accent);
+            color: var(--color-accent);
+            font-family: var(--font-heading);
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+
+        .step h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step p {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+        }
+
+        /* ── MODE EXAMPLES ───────────────────── */
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .mode-card {
+            background-color: #2A241C;
+            border: 1px solid #3A3028;
+            border-radius: var(--radius);
+            padding: 1.25rem 1.5rem;
+        }
+
+        .mode-trigger {
+            font-size: 0.9rem;
+            color: #C8BFA8;
+            font-style: italic;
+            margin-bottom: 0.5rem;
+        }
+
+        .mode-trigger::before {
+            content: "" "; }
+ .mode-trigger::after {
+                content: "" "; }
+
+
+                    .mode-result {
+                    font-size: 0.85rem;
+                    color: var(--color-accent);
+                    font-weight: 500;
+                }
+
+                .mode-result::before {
+                    content: "→ ";
+                }
+
+                /* ── TRANSPARENCY ────────────────────── */
+                .two-col {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 2rem;
+                    margin-top: 2rem;
+                }
+
+                @media (max-width: 600px) {
+                    .two-col {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .nav-links .hide-mobile {
+                        display: none;
+                    }
+                }
+
+                .transparency-block h3 {
+                    font-size: 1rem;
+                    font-weight: 500;
+                    letter-spacing: 0.04em;
+                    margin-bottom: 0.75rem;
+                    color: var(--color-text);
+                }
+
+                .transparency-block ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .transparency-block ul li {
+                    font-size: 0.9rem;
+                    color: var(--color-text-muted);
+                    padding: 0.35rem 0;
+                    padding-left: 1.25rem;
+                    position: relative;
+                }
+
+                .transparency-block.collects ul li::before {
+                    content: "✓";
+                    position: absolute;
+                    left: 0;
+                    color: var(--color-accent);
+                    font-size: 0.8rem;
+                }
+
+                .transparency-block.never ul li::before {
+                    content: "✗";
+                    position: absolute;
+                    left: 0;
+                    color: #888;
+                    font-size: 0.8rem;
+                }
+
+                /* ── SURVEY SECTION ──────────────────── */
+                .survey-box {
+                    background-color: var(--color-bg);
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius);
+                    padding: 2rem;
+                    margin-top: 2rem;
+                }
+
+                /* ── PILOT DETAILS ───────────────────── */
+                .pilot-detail-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                    gap: 1.5rem;
+                    margin-top: 2rem;
+                }
+
+                .pilot-detail {
+                    border-left: 2px solid var(--color-accent);
+                    padding-left: 1rem;
+                }
+
+                .pilot-detail h3 {
+                    font-size: 1rem;
+                    font-weight: 500;
+                    margin-bottom: 0.4rem;
+                }
+
+                .pilot-detail p {
+                    font-size: 0.9rem;
+                    color: var(--color-text-muted);
+                    margin: 0;
+                }
+
+                /* ── APPLICATION FORM ────────────────── */
+                /* form-control mirrors base.html exactly — same input style as the registration form. */
+                .form-control {
+                    background-color: #FDFAF6;
+                    border: 1px solid #C8C0B0;
+                    color: #1A1A1A;
+                    border-radius: 8px;
+                    padding: 0.625rem 0.875rem;
+                    font-family: var(--font-body);
+                    font-size: 1rem;
+                }
+
+                .form-control:focus,
+                .form-control:focus-visible {
+                    outline: 0;
+                    background-color: #FDFAF6;
+                    border-color: var(--color-accent);
+                    color: #1A1A1A;
+                    box-shadow: 0 0 0 3px rgba(201, 149, 42, 0.18);
+                }
+
+                textarea.form-control {
+                    min-height: 120px;
+                    resize: vertical;
+                }
+
+                .form-control:-webkit-autofill,
+                .form-control:-webkit-autofill:hover,
+                .form-control:-webkit-autofill:focus {
+                    -webkit-box-shadow: 0 0 0px 1000px #FDFAF6 inset;
+                    -webkit-text-fill-color: #1A1A1A;
+                }
+
+                /* Match base.html exactly so this button reads identical to the registration page button. */
+                .btn-primary-warm {
+                    background-color: var(--color-accent);
+                    border-color: var(--color-accent);
+                    color: #1A1A1A;
+                    font-family: var(--font-body);
+                    font-weight: 500;
+                    letter-spacing: 0.08em;
+                    border-radius: 8px;
+                    padding: 0.625rem 1.25rem;
+                    font-size: 1rem;
+                    box-shadow: 0 2px 8px rgba(184, 134, 11, 0.3);
+                    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+                }
+
+                .btn-primary-warm:hover,
+                .btn-primary-warm:focus {
+                    background-color: #D4A820;
+                    border-color: #D4A820;
+                    color: #1A1A1A;
+                    text-decoration: none;
+                }
+
+                .apply-card {
+                    background-color: var(--color-surface);
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius);
+                    box-shadow: 0 4px 24px rgba(26, 20, 10, 0.08);
+                    max-width: 560px;
+                    margin: 2rem auto 0;
+                    padding: 2rem;
+                    text-align: left;
+                }
+
+                .apply-card .form-note {
+                    font-size: 0.8rem;
+                    color: var(--color-text-muted);
+                    text-align: center;
+                    margin-top: 1rem;
+                    margin-bottom: 0;
+                }
+
+                .apply-card .error-msg {
+                    background-color: rgba(192, 57, 43, 0.08);
+                    border: 1px solid rgba(192, 57, 43, 0.3);
+                    border-radius: 8px;
+                    color: #b03020;
+                    padding: 0.75rem 1rem;
+                    font-size: 0.9rem;
+                    margin-bottom: 1rem;
+                }
+
+                .success-box {
+                    max-width: 560px;
+                    margin: 2rem auto;
+                    background-color: var(--color-surface);
+                    border: 1px solid var(--color-accent);
+                    border-radius: var(--radius);
+                    padding: 2rem;
+                    text-align: center;
+                }
+
+                .success-box h3 {
+                    color: var(--color-accent);
+                    font-size: 1.4rem;
+                    margin-bottom: 0.75rem;
+                }
+
+                .success-box p {
+                    color: var(--color-text-muted);
+                    margin: 0;
+                }
+
+                /* ── FOOTER ──
+           Multi-column layout with grouped headings.
+           Spacing and logic mirror loyalistic.com's footer.
+           CSS Grid keeps the three columns horizontal on desktop predictably —
+           flex-wrap was wrapping prematurely when the email column got long. */
+                .landing-footer {
+                    background-color: var(--color-bg);
+                    border-top: 1px solid var(--color-border);
+                    padding: 2.5rem 2rem 2rem !important;
+                    text-align: center;
+                }
+
+                .footer-cols {
+                    max-width: 700px;
+                    margin: 0 auto;
+                    display: grid !important;
+                    grid-template-columns: repeat(3, 1fr) !important;
+                    gap: 3rem;
+                }
+
+                .footer-col {
+                    min-width: 0;
+                    /* allow grid items to shrink for long content like the email */
+                    text-align: left !important;
+                    /* beats the inherited center from the footer's inline style */
+                }
+
+                .footer-col h4 {
+                    font-family: var(--font-body);
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                    color: var(--color-text);
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                    margin: 0 0 1.25rem 0;
+                }
+
+                .footer-col ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .footer-col li {
+                    margin-bottom: 0.5rem;
+                }
+
+                .footer-col a,
+                .footer-col p {
+                    font-size: 0.9rem;
+                    color: var(--color-text-muted);
+                    text-decoration: none;
+                    line-height: 1.7;
+                    margin: 0;
+                    overflow-wrap: break-word;
+                    /* long email wraps inside its column instead of overflowing */
+                }
+
+                .footer-col a:hover {
+                    color: var(--color-accent);
+                    text-decoration: none;
+                }
+
+                .footer-bottom {
+                    max-width: 700px;
+                    margin: 3.5rem auto 0 !important;
+                    padding-top: 2rem;
+                    border-top: 1px solid var(--color-border);
+                    text-align: center !important;
+                }
+
+                .footer-bottom p {
+                    margin: 0;
+                    font-size: 0.8rem;
+                    color: var(--color-text-muted);
+                    text-align: center !important;
+                }
+
+                /* Stack columns on tablet and mobile — single column with breathing room. */
+                @media (max-width: 768px) {
+                    .landing-footer {
+                        padding: 3rem 1.5rem 2rem;
+                    }
+
+                    .footer-cols {
+                        grid-template-columns: 1fr;
+                        gap: 2rem;
+                    }
+
+                    .footer-bottom {
+                        margin-top: 2.5rem;
+                    }
+                }
+
+                /* ── DIVIDER ─────────────────────────── */
+                .gold-divider {
+                    width: 48px;
+                    height: 1px;
+                    background-color: var(--color-accent);
+                    margin: 1.5rem 0;
+                }
+
+                /* ── BACK TO TOP ──
+           Sits inside the dark apply section after the apply-card.
+           3rem space above the button (clear separation from privacy disclaimer),
+           1.5rem below (smaller gap before the section ends and the footer starts). */
+                .back-to-top-row {
+                    text-align: center;
+                    padding: 3rem 1rem 1.5rem !important;
+                }
+
+                /* Gold ghost button on dark background — clearly clickable, not a text link. */
+                .back-to-top-btn {
+                    display: inline-block !important;
+                    padding: 0.5rem 1.5rem !important;
+                    font-size: 0.85rem;
+                    font-weight: 500;
+                    letter-spacing: 0.04em;
+                    color: #C9952A !important;
+                    text-decoration: none !important;
+                    background-color: transparent !important;
+                    border: 1.5px solid #C9952A !important;
+                    border-radius: 8px !important;
+                    transition: box-shadow 0.25s ease;
+                    cursor: pointer;
+                }
+
+                /* Hover: warm gold glow around the edges. Same color, same transparent background.
+           Two layered shadows — a tighter inner one and a softer outer one — give the glow depth without bleeding too far. */
+                .back-to-top-btn:hover,
+                a.back-to-top-btn:hover {
+                    box-shadow: 0 0 14px rgba(201, 149, 42, 0.75), 0 0 28px rgba(201, 149, 42, 0.5) !important;
+                    text-decoration: none !important;
+                }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── NAV ───────────────────────────────────────────── -->
+    <nav class="landing-nav">
+        <a href="/" class="nav-logo">
+            <img src="{% static 'images/logo.png' %}" alt="Companion OS logo">
+            <span class="nav-logo-text">Companion OS</span>
+        </a>
+        <div class="nav-links">
+            <div class="dropdown">
+                <button class="btn-nav-menu dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    Menu
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="/">Home</a></li>
+                    <li><a class="dropdown-item" href="/accounts/login/">Log in</a></li>
+                    <li><a class="dropdown-item" href="/accounts/register/">Register</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="#apply">Apply for the pilot</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="{% url 'privacy' %}">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <a href="#apply" class="btn-apply">Apply for pilot</a>
+        </div>
+    </nav>
+
+    <!-- ── HERO ──────────────────────────────────────────── -->
+    <section class="hero">
+        <h1>A steady presence.<br>For when life gets hard.</h1>
+        <p>Companion OS is an AI tool that teaches coping skills, helps you through difficult moments, and keeps you
+            company. It is not therapy. It is not a diagnosis. It is something to try when you need a place to start.
+        </p>
+        <a href="#apply" class="btn-apply" style="font-size:1rem; padding: 0.75rem 2rem;">Apply for the pilot</a>
+    </section>
+
+    <!-- ── WHO THIS IS FOR ───────────────────────────────── -->
+    <section class="section">
+        <div class="section-inner">
+            <p class="section-label">Who it is for</p>
+            <h2 class="section-title">Built for people whose brains work differently under pressure.</h2>
+            <p style="color: var(--color-text-muted);">Companion OS was designed for people who have not always had the
+                right tools to manage what is happening inside them. That includes a lot of people.</p>
+            <ul class="for-who-list">
+                <li>People who find it hard to focus, start tasks, or stay on track</li>
+                <li>People managing anxiety, overwhelm, or emotional dysregulation</li>
+                <li>People in recovery from addiction, trauma, or a difficult period</li>
+                <li>Brain injury survivors and veterans rebuilding daily life</li>
+                <li>Teenagers navigating hard seasons without enough support</li>
+                <li>Elderly people living alone who need a calm, reliable presence</li>
+                <li>Anyone who just needs somewhere to start when they feel stuck</li>
+            </ul>
+            <div class="gold-divider"></div>
+            <p style="font-size:0.9rem; color: var(--color-text-muted);">Companion OS does not diagnose conditions,
+                prescribe treatment, or replace professional help. It teaches skills and keeps you company.</p>
+        </div>
+    </section>
+
+    <!-- ── HOW IT WORKS ──────────────────────────────────── -->
+    <section class="section section-alt">
+        <div class="section-inner">
+            <p class="section-label">How it works</p>
+            <h2 class="section-title">No instructions needed. Just say what you need.</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Register</h3>
+                    <p>Use your invite code to create an account. Takes two minutes.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Tell Companion what is happening</h3>
+                    <p>In English, Finnish, or Estonian. In any form. A sentence is enough.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Work through it together</h3>
+                    <p>One step at a time. At your pace. No judgment.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── MODE EXAMPLES ─────────────────────────────────── -->
+    <section class="section section-dark">
+        <div class="section-inner-wide">
+            <p class="section-label">18 conversation modes</p>
+            <h2 class="section-title">You do not need to know what mode you need. Just say what you feel.</h2>
+            <p style="color:#C8BFA8; margin-bottom: 0;">Companion listens and responds in the way that fits the moment.
+                Here are some examples of what that looks like.</p>
+            <div class="mode-grid">
+                <div class="mode-card">
+                    <p class="mode-trigger">I cannot start anything. I have been sitting here for an hour.</p>
+                    <p class="mode-result">Focus Mode — breaks the first step into something small enough to actually do
+                    </p>
+                </div>
+                <div class="mode-card">
+                    <p class="mode-trigger">I am overwhelmed and I cannot breathe.</p>
+                    <p class="mode-result">Calm Mode — slows things down, grounds you in the present moment</p>
+                </div>
+                <div class="mode-card">
+                    <p class="mode-trigger">I keep going in circles with this decision.</p>
+                    <p class="mode-result">Decision Mode — helps you see the options clearly and find your own answer
+                    </p>
+                </div>
+                <div class="mode-card">
+                    <p class="mode-trigger">I need to understand this article but nothing is going in.</p>
+                    <p class="mode-result">Study Mode — breaks the content into the smallest useful pieces</p>
+                </div>
+                <div class="mode-card">
+                    <p class="mode-trigger">I am having a craving and I do not know what to do.</p>
+                    <p class="mode-result">Steady Mode — helps you wait it out. The feeling always passes</p>
+                </div>
+                <div class="mode-card">
+                    <p class="mode-trigger">Someone keeps crossing my limits and I do not know how to say stop.</p>
+                    <p class="mode-result">Boundary Mode — helps you name the limit and find the words</p>
+                </div>
+            </div>
+            <p style="color:#7A7060; font-size:0.85rem; margin-top:1.5rem; text-align:center;">
+                These are 6 of 18 modes. The full list: Calm, Mindfulness, Steady, Reality Check, Focus, Planning,
+                Decision, Reflection, Boundary, Daily Companion, Study, Read, Listen, Express, Feedback, Habit and Aim,
+                Relationship, and Help.
+                <br><a href="https://github.com/LiinaSuoniemi/companion_os#readme" target="_blank" rel="noopener"
+                    style="color: var(--color-accent);">Read the full description on GitHub →</a>
+            </p>
+        </div>
+    </section>
+
+    <!-- ── TRANSPARENCY ───────────────────────────────────── -->
+    <section class="section">
+        <div class="section-inner">
+            <p class="section-label">Transparency</p>
+            <h2 class="section-title">What Companion OS collects. And what it never does.</h2>
+            <div class="two-col">
+                <div class="transparency-block collects">
+                    <h3>What we collect — with your consent</h3>
+                    <ul>
+                        <li>Your messages, to have a conversation</li>
+                        <li>Anonymous usage data, to understand what helps</li>
+                        <li>Optional survey responses, to measure real impact</li>
+                    </ul>
+                </div>
+                <div class="transparency-block never">
+                    <h3>What we never do</h3>
+                    <ul>
+                        <li>Never diagnose or prescribe anything</li>
+                        <li>Never share your data with third parties</li>
+                        <li>Never store data without your explicit consent</li>
+                        <li>Never pretend to be human</li>
+                        <li>Never use your data to train AI models</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="gold-divider"></div>
+            <p style="font-size:0.9rem; color: var(--color-text-muted);">
+                Want to verify this yourself? The code is open source.
+                <a href="https://github.com/LiinaSuoniemi/companion_os#readme" target="_blank" rel="noopener">Read the
+                    README on GitHub →</a>
+                It includes instructions on how to use AI to review the code for safety — so you do not have to take my
+                word for it.
+            </p>
+        </div>
+    </section>
+
+    <!-- ── IMPACT SURVEY ──────────────────────────────────── -->
+    <section class="section section-alt">
+        <div class="section-inner">
+            <p class="section-label">Impact survey</p>
+            <h2 class="section-title">Four questions. At the start and after four weeks.</h2>
+            <div class="survey-box">
+                <p style="color: var(--color-text-muted);">At the beginning of the pilot, Companion OS will ask you four
+                    short questions. Things like: <em>Do you have something to try when you feel overwhelmed?</em> It
+                    takes two minutes. The same four questions appear again at the four-week mark.</p>
+                <p style="color: var(--color-text-muted);">These questions are not about scoring you. They are about
+                    understanding whether the tool actually makes a difference in daily life — not just whether it feels
+                    nice to use.</p>
+                <p style="color: var(--color-text-muted); margin-bottom: 0;">Your answers are anonymous and go directly
+                    into shaping the next version of Companion OS. The survey is optional. You can skip it if you
+                    prefer.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── PILOT DETAILS ──────────────────────────────────── -->
+    <section class="section">
+        <div class="section-inner">
+            <p class="section-label">The pilot</p>
+            <h2 class="section-title">Four weeks. A small group. A real conversation at the end.</h2>
+            <div class="pilot-detail-grid">
+                <div class="pilot-detail">
+                    <h3>Duration</h3>
+                    <p>Four weeks of access. One week grace period after. No rush.</p>
+                </div>
+                <div class="pilot-detail">
+                    <h3>Group size</h3>
+                    <p>Small on purpose. If this group is full, you go on the next list. Nobody is left out permanently.
+                    </p>
+                </div>
+                <div class="pilot-detail">
+                    <h3>What you get</h3>
+                    <p>Your feedback shapes what comes next.</p>
+                </div>
+                <div class="pilot-detail">
+                    <h3>At the end</h3>
+                    <p>I will reach out personally. I want to hear what worked, what did not, and what you wish
+                        Companion had known about you from the start.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── APPLICATION FORM ───────────────────────────────── -->
+    <section class="section section-dark" id="apply">
+        <div class="section-inner" style="text-align:center;">
+            <p class="section-label">Apply</p>
+            <h2 class="section-title">Tell me a little about you.</h2>
+            <p>No long forms. Just your name, email, and what brings you here. I read every application myself.</p>
+
+            {% if success %}
+            <div class="success-box">
+                <h3>Application received.</h3>
+                <p>Thank you for applying. I will be in touch with your invite code. This may take a few days — the
+                    group is small and I want to read each application properly.</p>
+            </div>
+            {% else %}
+            <div class="apply-card">
+                <form method="post" action="/accounts/apply/" novalidate>
+                    {% csrf_token %}
+                    {% if error %}
+                    <div class="error-msg">{{ error }}</div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <label for="name" class="form-label small fw-medium">Your name</label>
+                        <input type="text" id="name" name="name" class="form-control" placeholder="First name is fine"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label small fw-medium">Email address</label>
+                        <input type="email" id="email" name="email" class="form-control"
+                            placeholder="Where I can reach you" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="what_brings_you" class="form-label small fw-medium">What brings you here?</label>
+                        <textarea id="what_brings_you" name="what_brings_you" class="form-control"
+                            placeholder="What are you hoping Companion OS can help with? A few sentences is enough."
+                            required></textarea>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="btn-apply"
+                            style="font-size: 1rem; padding: 0.75rem 2rem; width: 100%;">Apply for the pilot</button>
+                    </div>
+                    <p class="form-note">By applying you agree to the <a href="{% url 'privacy' %}">Privacy Policy</a>.
+                        Your information is never shared with third parties.</p>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- Back to top — inside the dark apply section, after the apply-card, before the footer -->
+            <div class="back-to-top-row" style="text-align: center; padding: 3rem 1rem 1.5rem;">
+                <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;"
+                    style="display: inline-block; padding: 0.5rem 1.5rem; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.04em; color: #C9952A; text-decoration: none; background-color: transparent; border: 1.5px solid #C9952A; border-radius: 8px; transition: box-shadow 0.25s ease; cursor: pointer;"
+                    onmouseover="this.style.boxShadow='0 0 14px rgba(201,149,42,0.75), 0 0 28px rgba(201,149,42,0.5)'"
+                    onmouseout="this.style.boxShadow='none'">↑ Back to top</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ─────────────────────────────────────────── -->
+    <!-- footer-version: grid-v3 — if you're seeing this comment in view-source, you have the latest CSS -->
+    <footer class="landing-footer" data-footer-version="grid-v5" style="padding: 2.5rem 2rem 2rem; text-align: center;">
+        <div class="footer-cols"
+            style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; max-width: 700px; margin: 0 auto; text-align: left !important;">
+            <div class="footer-col" style="text-align: left !important;">
+                <h4 style="text-align: left !important;">Help</h4>
+                <p style="text-align: left !important;">
+                    <a href="{% url 'privacy' %}">Privacy</a>
+                </p>
+            </div>
+            <div class="footer-col" style="text-align: left !important;">
+                <h4 style="text-align: left !important;">Contact</h4>
+                <p style="text-align: left !important;">
+                    <a href="mailto:hello@getcompanionos.com">hello@getcompanionos.com</a><br>
+                    Espoo, Finland
+                </p>
+            </div>
+            <div class="footer-col" style="text-align: left !important;">
+                <h4 style="text-align: left !important;">Connect</h4>
+                <p style="text-align: left !important;">
+                    <a href="https://github.com/LiinaSuoniemi/companion_os" target="_blank"
+                        rel="noopener">GitHub</a><br>
+                    <a href="https://www.linkedin.com/in/liina-suoniemi" target="_blank" rel="noopener">LinkedIn</a>
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom" style="max-width: 700px; margin: 3.5rem auto 0; text-align: center;">
+            <p style="text-align: center; margin: 0;">© 2026 Companion OS</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% if scroll_to_form %}
+    <script>
+        document.getElementById('apply').scrollIntoView({ behavior: 'smooth' });
+    </script>
+    {% endif %}
+</body>
+
+</html>

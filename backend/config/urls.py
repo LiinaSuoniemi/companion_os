@@ -15,8 +15,9 @@ admin.site.__class__ = AdminSiteOTPRequired
 
 
 def home(request):
-    # Home redirects to conversation list — the entry point to the product
-    return redirect("chat:conversation_list")
+    if request.user.is_authenticated:
+        return redirect("chat:conversation_list")
+    return render(request, "landing.html")
 
 
 urlpatterns = [

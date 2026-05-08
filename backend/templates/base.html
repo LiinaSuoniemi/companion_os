@@ -76,7 +76,8 @@
             background-color: #FDFAF6;
             border-color: var(--color-accent);
             color: var(--color-text);
-            box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.18);
+            outline: 0;
+            box-shadow: 0 0 0 3px rgba(201, 149, 42, 0.18);
         }
 
         .form-control.is-invalid {
@@ -193,6 +194,49 @@
             box-shadow: 0 0 0px 1000px #FDFAF6 inset;
             -webkit-text-fill-color: #1A1A1A;
         }
+
+        /* ── Shared app card ──
+           Single canonical card style for login, register, privacy, delete account.
+           560px max width, soft warm shadow, parchment background.
+           Mobile: padding tightens, width fills the screen with side gutters. */
+        .app-card {
+            max-width: 560px;
+            width: calc(100% - 2rem);
+            margin: 48px auto;
+            background: #FAF7F2;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(26, 20, 10, 0.08);
+            padding: 48px;
+        }
+
+        @media (max-width: 600px) {
+            .app-card {
+                padding: 24px 20px;
+                margin: 24px auto;
+            }
+        }
+
+        /* Back button that sits inside the card top-left.
+           Same colour as the card with a thin border so it reads as a button. */
+        .app-card-back-btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--color-text);
+            text-decoration: none;
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            transition: background-color 0.15s ease;
+        }
+
+        .app-card-back-btn:hover {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            text-decoration: none;
+        }
+
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -205,7 +249,9 @@
          The AI is not a therapist. Users must always see a path to real help. -->
     <div class="crisis-banner" role="complementary" aria-label="Crisis support information">
         This is an AI, not a therapist. Not a substitute for professional help.
-        <span class="crisis-links">In crisis, contact:
+        <span class="crisis-links">In crisis:
+        <a href="tel:116123">116 123</a> (FI) &middot;
+        <a href="tel:116006">116 006</a> (EE) &middot;
         <a href="tel:112">112</a> (EU) &middot;
         <a href="tel:988">988</a> (US) &middot;
         <a href="https://findahelpline.com" target="_blank" rel="noopener">Find your helpline</a></span>

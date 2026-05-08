@@ -13,7 +13,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 
 from .forms import RegisterForm
-from .models import ImpactSurvey
+from .models import ImpactSurvey, PilotApplication
 
 
 class RegisterView(View):
@@ -123,6 +123,22 @@ class ImpactSurveyView(View):
                 return "followup"
 
         return None
+
+
+class PilotApplicationView(View):
+    def post(self, request):
+        name = request.POST.get("name", "").strip()
+        email = request.POST.get("email", "").strip()
+        what_brings_you = request.POST.get("what_brings_you", "").strip()
+
+        if not name or not email or not what_brings_you:
+            return render(request, "landing.html", {"error": "Please fill in all fields.", "scroll_to_form": True})
+
+        if PilotApplication.objects.filter(email=email).exists():
+            return render(request, "landing.html", {"error": "This email has already applied. I'll be in touch.", "scroll_to_form": True})
+
+        PilotApplication.objects.create(name=name, email=email, what_brings_you=what_brings_you)
+        return render(request, "landing.html", {"success": True})
 
 
 @method_decorator(login_required, name="dispatch")

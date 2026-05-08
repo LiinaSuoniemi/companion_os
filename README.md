@@ -6,7 +6,7 @@ An educational AI companion built for people who need more than a chatbot.
 
 Companion OS is a structured educational cognitive support tool. It teaches coping skills, grounding techniques, and self-awareness to people whose brains work differently under stress. It does not replace professional help. It fills the gap between having nothing and having everything. Structure when there is none. Grounding when things get overwhelming. Practical tools for daily life that most people pick up without ever being taught.
 
-It runs on 16 modes. Each mode activates based on what the user says. The user does not need to know which mode they need.
+It runs on 18 modes. Each mode activates based on what the user says. The user does not need to know which mode they need.
 
 ## Who it is for
 
@@ -38,6 +38,8 @@ Each mode solves a specific problem. None of them are decorative. Modes activate
 | Express | Helps you say what you actually mean, clearly, without shutting down. |
 | Feedback | Helps you receive criticism and praise accurately. |
 | Habit and Aim | Identifies what you are trying to become, audits what you are doing daily, and builds the system to close the gap. |
+| Relationship | Supports navigating relationship tensions, difficult dynamics, and communication breakdowns. |
+| Help | Orients new users. Explains what Companion is and routes to the right mode through a few questions. |
 
 Every mode has a safety ceiling. If crisis indicators appear in any mode, the system shifts to Calm Mode. A permanent crisis banner with local numbers in the user's language is always visible. A one-tap emergency button is always one step away. The AI does not go cold. The conversation continues. The safety layer is in the interface.
 
@@ -79,8 +81,8 @@ This is a real constraint, not a marketing position. Making smaller open models 
 
 Deployed on Railway with Django backend and PostgreSQL.
 
-Live as of April 2026:
-- 16 modes, each grounded in established psychology and behaviour research
+Live as of May 2026:
+- 18 modes, each grounded in established psychology and behaviour research
 - Trilingual crisis detection (Finnish, Estonian, English)
 - Conversation persistence with encryption at rest
 - Permanent crisis banner with verified helplines, present on every page
@@ -90,7 +92,7 @@ Live as of April 2026:
 - Optional impact survey at signup and after 4 weeks
 - Account deletion with full database removal (GDPR Article 17)
 
-Currently in private pilot preparation, opening in May 2026. Not yet open to the public. Invite-only access.
+Currently in private pilot preparation, opening this month. Not yet open to the public. Invite-only access.
 
 ## Built by
 

@@ -7,7 +7,7 @@ Django's UserCreationForm already handles:
 - password strength validation
 - duplicate username check
 
-We extend it to add our custom fields (language, voice preference, consent).
+We extend it to add our custom fields (language preference, consent).
 Writing this from scratch would mean reimplementing all of that.
 """
 from django import forms

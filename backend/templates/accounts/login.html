@@ -4,17 +4,8 @@
 
 {% block extra_css %}
 <style>
-    /* Login container: matches registration page vertical position exactly */
-    .login-container {
-        padding-top: 48px;
-        padding-bottom: 48px;
-        padding-left: 1rem;
-        padding-right: 1rem;
-        min-height: calc(100vh - 60px);
-        display: flex;
-        align-items: flex-start;
-        justify-content: center;
-    }
+    /* Allow the page to scroll on short screens once the public footer is below the card. */
+    body { overflow-y: auto; }
 
     /* Password field: eye icon floats inside the input, not beside it */
     .password-wrapper {
@@ -47,87 +38,86 @@
 {% endblock %}
 
 {% block content %}
-<div class="login-container">
-    <div class="card w-100" style="max-width: 560px; box-shadow: 0 2px 16px rgba(44,36,22,0.07);">
-        <div class="card-body p-4">
+<div class="app-card">
 
-            <h1 class="h4 mb-1 text-center fw-semibold">Welcome back</h1>
-            <p class="text-center mb-4 small" style="color: var(--color-text-muted);">Sign in to Companion OS</p>
+    {# Home button sits inside the card top-left, padded from the edge by the card itself. #}
+    <a href="{% url 'home' %}" class="app-card-back-btn">← Home</a>
 
-            <form method="post" novalidate>
-                {% csrf_token %}
+    <h1 class="h4 mb-1 text-center fw-semibold">Welcome back</h1>
+    <p class="text-center mb-4 small" style="color: var(--color-text-muted);">Sign in to Companion OS</p>
 
-                {% for field in form %}
-                <div class="mb-3">
-                    <label for="{{ field.id_for_label }}" class="form-label small fw-medium">
-                        {{ field.label }}
-                    </label>
+    <form method="post" novalidate>
+        {% csrf_token %}
 
-                    {% if field.field.widget.input_type == "password" %}
-                    <div class="password-wrapper">
-                        <input
-                            type="password"
-                            name="{{ field.html_name }}"
-                            id="{{ field.id_for_label }}"
-                            class="form-control {% if field.errors %}is-invalid{% endif %}"
-                            autocomplete="{{ field.html_name }}"
-                        >
-                        <button
-                            type="button"
-                            class="password-toggle"
-                            onclick="togglePassword('{{ field.id_for_label }}', this)"
-                            tabindex="-1"
-                            aria-label="Show or hide password"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
-                                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
-                            </svg>
-                        </button>
-                    </div>
-                    {% if field.errors %}
-                        {% for error in field.errors %}
-                        <div class="invalid-feedback d-block">{{ error }}</div>
-                        {% endfor %}
-                    {% endif %}
-                    {% else %}
-                    <input
-                        type="{{ field.field.widget.input_type }}"
-                        name="{{ field.html_name }}"
-                        id="{{ field.id_for_label }}"
-                        class="form-control {% if field.errors %}is-invalid{% endif %}"
-                        {% if field.value %}value="{{ field.value }}"{% endif %}
-                        autocomplete="{{ field.html_name }}"
-                    >
-                    {% if field.errors %}
-                        {% for error in field.errors %}
-                        <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                    {% endif %}
-                    {% endif %}
-                </div>
+        {% for field in form %}
+        <div class="mb-3">
+            <label for="{{ field.id_for_label }}" class="form-label small fw-medium">
+                {{ field.label }}
+            </label>
+
+            {% if field.field.widget.input_type == "password" %}
+            <div class="password-wrapper">
+                <input
+                    type="password"
+                    name="{{ field.html_name }}"
+                    id="{{ field.id_for_label }}"
+                    class="form-control {% if field.errors %}is-invalid{% endif %}"
+                    autocomplete="{{ field.html_name }}"
+                >
+                <button
+                    type="button"
+                    class="password-toggle"
+                    onclick="togglePassword('{{ field.id_for_label }}', this)"
+                    tabindex="-1"
+                    aria-label="Show or hide password"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                        <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                    </svg>
+                </button>
+            </div>
+            {% if field.errors %}
+                {% for error in field.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
                 {% endfor %}
-
-                {% if form.non_field_errors %}
-                <div class="alert alert-danger py-2 small">
-                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
-                </div>
-                {% endif %}
-
-                <div class="d-grid mt-4">
-                    <button type="submit" class="btn btn-primary-warm w-100">Sign in</button>
-                </div>
-            </form>
-
-            <hr class="my-4">
-
-            <p class="text-center mb-0 small" style="color: var(--color-text-muted);">
-                No account yet?
-                <a href="{% url 'accounts:register' %}" class="fw-medium" style="color: var(--color-text);">Create one</a>
-            </p>
-
+            {% endif %}
+            {% else %}
+            <input
+                type="{{ field.field.widget.input_type }}"
+                name="{{ field.html_name }}"
+                id="{{ field.id_for_label }}"
+                class="form-control {% if field.errors %}is-invalid{% endif %}"
+                {% if field.value %}value="{{ field.value }}"{% endif %}
+                autocomplete="{{ field.html_name }}"
+            >
+            {% if field.errors %}
+                {% for error in field.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+            {% endif %}
         </div>
-    </div>
+        {% endfor %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger py-2 small">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary-warm w-100">Sign in</button>
+        </div>
+    </form>
+
+    <hr class="my-4">
+
+    <p class="text-center mb-0 small" style="color: var(--color-text-muted);">
+        No account yet?
+        <a href="{% url 'accounts:register' %}" class="fw-medium" style="color: var(--color-text);">Create one</a>
+    </p>
+
 </div>
 {% endblock %}
 

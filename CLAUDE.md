@@ -14,7 +14,7 @@ skills, grounding techniques, and self-awareness to people whose brains work dif
 under stress. Including people with trauma, cognitive differences, crisis states, and
 limited access to professional support.
 
-It has 16 operating modes that teach grounding, impulse management, reality checking,
+It has 18 operating modes that teach grounding, impulse management, reality checking,
 boundary skills, goal tracking, and habit building. Safety is non-negotiable. It does
 not diagnose, treat, or monitor conditions. It teaches skills.
 

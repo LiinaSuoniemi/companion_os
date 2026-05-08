@@ -229,6 +229,62 @@
         cursor: not-allowed;
     }
 
+    .call-btn {
+        flex-shrink: 0;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: none;
+        border: 1.5px solid var(--color-border);
+        color: var(--color-text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .call-btn:hover {
+        border-color: #C9952A;
+        color: #C9952A;
+    }
+
+    .call-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    /* Phone number pills inside chat bubbles */
+    .chat-phone-btn {
+        display: inline-block;
+        padding: 0.15rem 0.6rem;
+        border: 1.5px solid #c0392b;
+        border-radius: 20px;
+        color: #c0392b !important;
+        text-decoration: none !important;
+        font-size: 0.9em;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .chat-phone-btn:hover {
+        background-color: #c0392b;
+        color: #ffffff !important;
+        text-decoration: none !important;
+    }
+
+    /* URLs inside chat bubbles — understated, not gold */
+    .message-assistant a:not(.chat-phone-btn) {
+        color: #5a7a9a;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+
+    .message-assistant a:not(.chat-phone-btn):hover {
+        color: #3d5a73;
+    }
+
     /* ── Conversation dropdown ── */
     .conv-dropdown {
         position: relative;
@@ -459,6 +515,12 @@
                 autocomplete="off"
                 autofocus
             ></textarea>
+            <button type="button" class="call-btn" id="callBtn" aria-label="Get help making a call" title="Get help making a call">
+                <!-- Phone handset icon -->
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.37 12 19.79 19.79 0 0 1 1.21 3.22 2 2 0 0 1 3.2 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"></path>
+                </svg>
+            </button>
             <button type="submit" class="send-btn" id="sendBtn" aria-label="Send message">
                 <!-- Send arrow icon -->
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -477,9 +539,32 @@
     const messageArea = document.getElementById('messageArea');
     const input = document.getElementById('messageInput');
     const sendBtn = document.getElementById('sendBtn');
+    const callBtn = document.getElementById('callBtn');
     const modeBadge = document.getElementById('modeBadge');
     const streamUrl = "{% url 'chat:stream' pk=conversation.pk %}";
     const csrfToken = "{{ csrf_token }}";
+
+    const modeNames = {
+        "auto": "Listening",
+        "calm": "With you",
+        "mindfulness": "Breathing",
+        "steady": "Here with you",
+        "reality_check": "Let's look at this",
+        "focus": "One step",
+        "planning": "Planning",
+        "decision": "Deciding",
+        "reflection": "Reflecting",
+        "boundary": "Holding ground",
+        "daily": "Just here",
+        "study": "Learning",
+        "read": "Reading",
+        "listen": "Listening",
+        "express": "Finding words",
+        "feedback": "Looking clearly",
+        "habit_aim": "Building",
+        "relationship": "Connecting",
+        "help": "Orienting",
+    };
 
     // iOS Safari: keyboard opens but window.innerHeight doesn't shrink — visualViewport does.
     // We resize the page-wrapper to match the actual visible area so the input stays above the keyboard.
@@ -511,8 +596,13 @@
         if (input.value.trim()) sendMessage();
     });
 
-    function sendMessage() {
-        const text = input.value.trim();
+    // Call button click — triggers call-prep behavior
+    callBtn.addEventListener('click', function () {
+        if (!callBtn.disabled) triggerCallPrep();
+    });
+
+    function sendMessage(overrideText, extraPayload) {
+        const text = overrideText !== undefined ? overrideText : input.value.trim();
         if (!text) return;
 
         // Remove empty state if visible
@@ -522,15 +612,20 @@
         // Add user bubble immediately — no waiting
         appendBubble('user', text);
 
-        // Clear and reset input
-        input.value = '';
-        input.style.height = 'auto';
+        // Clear and reset input only when sending from the textarea
+        if (overrideText === undefined) {
+            input.value = '';
+            input.style.height = 'auto';
+        }
         sendBtn.disabled = true;
+        callBtn.disabled = true;
 
         // Create empty assistant bubble that will fill in as tokens arrive
         const assistantBubble = appendBubble('assistant', '');
         // Show a subtle typing indicator while waiting for first token
         assistantBubble.innerHTML = '<span style="opacity:0.4;">...</span>';
+
+        const payload = Object.assign({ message: text }, extraPayload || {});
 
         // Send message to streaming endpoint
         fetch(streamUrl, {
@@ -539,7 +634,7 @@
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrfToken,
             },
-            body: JSON.stringify({ message: text }),
+            body: JSON.stringify(payload),
         }).then(response => {
             /*
              * Why ReadableStream and not EventSource?
@@ -579,30 +674,11 @@
                             if (data.done) {
                                 // Update mode badge if mode changed
                                 if (data.mode && modeBadge) {
-                                    const modeNames = {
-                                        "auto": "Listening",
-                                        "calm": "With you",
-                                        "mindfulness": "Breathing",
-                                        "steady": "Here with you",
-                                        "reality_check": "Let's look at this",
-                                        "focus": "One step",
-                                        "planning": "Planning",
-                                        "decision": "Deciding",
-                                        "reflection": "Reflecting",
-                                        "boundary": "Holding ground",
-                                        "daily": "Just here",
-                                        "study": "Learning",
-                                        "read": "Reading",
-                                        "listen": "Listening",
-                                        "express": "Finding words",
-                                        "feedback": "Looking clearly",
-                                        "habit_aim": "Building",
-                                        "help": "Orienting",
-                                    };
                                     modeBadge.textContent = modeNames[data.mode] || data.mode;
                                 }
-                                // Re-enable input
+                                // Re-enable inputs
                                 sendBtn.disabled = false;
+                                callBtn.disabled = false;
                                 input.focus();
                             }
 
@@ -610,6 +686,7 @@
                                 assistantBubble.textContent = data.error;
                                 assistantBubble.style.opacity = '0.6';
                                 sendBtn.disabled = false;
+                                callBtn.disabled = false;
                             }
 
                         } catch (e) {
@@ -626,18 +703,56 @@
             assistantBubble.textContent = 'Could not connect. Try again.';
             assistantBubble.style.opacity = '0.6';
             sendBtn.disabled = false;
+            callBtn.disabled = false;
         });
     }
 
+    function triggerCallPrep() {
+        sendMessage('I need help making a call', { call_prep: true });
+    }
+
     // Convert plain text to safe HTML paragraphs — for assistant bubbles only.
-    // Escapes HTML entities first, then converts \n\n to <p> tags and \n to <br>.
+    // Order: escape HTML → phone numbers → URLs → bare domains → paragraphs.
+    // Escaping first means no injected HTML can survive.
     function textToHtml(text) {
         const escaped = text
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;');
-        const paragraphs = escaped.split(/\n\n+/);
-        if (paragraphs.length <= 1) return escaped.replace(/\n/g, '<br>');
+
+        // Verified phone numbers → tappable tel: pill buttons.
+        // Only the four numbers in BASE_RULES are matched — no guessing.
+        let linked = escaped.replace(
+            /\b(116[\s]?123|116[\s]?006|112|988)\b/g,
+            num => {
+                const dialNum = num.replace(/\s/g, '');
+                return `<a href="tel:${dialNum}" class="chat-phone-btn">${num}</a>`;
+            }
+        );
+
+        // Autolink https:// URLs. Strip trailing punctuation so "findahelpline.com." links cleanly.
+        linked = linked.replace(/https?:\/\/[^\s<>"&]+/g, url => {
+            const clean = url.replace(/[.,!?:;]+$/, '');
+            return `<a href="${clean}" target="_blank" rel="noopener noreferrer">${clean}</a>`;
+        });
+
+        // Also link known bare domains the AI may write without the protocol prefix.
+        const knownDomains = [
+            'findahelpline\\.com',
+            'mielenterveystalo\\.fi',
+            'hearing-voices\\.org',
+            'peaasi\\.ee',
+        ];
+        const domainRegex = new RegExp(
+            '(?<!["\\/])(' + knownDomains.join('|') + ')(?!["\\/\\w])',
+            'g'
+        );
+        linked = linked.replace(domainRegex, domain =>
+            `<a href="https://${domain}" target="_blank" rel="noopener noreferrer">${domain}</a>`
+        );
+
+        const paragraphs = linked.split(/\n\n+/);
+        if (paragraphs.length <= 1) return linked.replace(/\n/g, '<br>');
         return paragraphs
             .filter(p => p.trim())
             .map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`)

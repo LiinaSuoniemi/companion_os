@@ -150,6 +150,7 @@ class UsageEvent(models.Model):
     EVENT_CHOICES = [
         ("conversation_created", "Conversation created"),
         ("conversation_deleted", "Conversation deleted"),
+        ("mode_used", "Mode used"),
     ]
 
     user = models.ForeignKey(
@@ -158,6 +159,8 @@ class UsageEvent(models.Model):
         related_name="usage_events",
     )
     event_type = models.CharField(max_length=30, choices=EVENT_CHOICES)
+    mode = models.CharField(max_length=50, blank=True, default="")
+    token_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

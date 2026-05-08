@@ -8,25 +8,8 @@
         overflow-y: auto;
     }
 
-    /* Crisis banner matches card width on this page (default 560px from base.html is correct) */
-
-    .privacy-card {
-        max-width: 560px;
-        width: calc(100% - 2rem);
-        margin: 48px auto;
-        background: #FAF7F2;
-        border-radius: 12px;
-        box-shadow: 0 4px 24px rgba(26, 20, 10, 0.08);
-        padding: 48px;
-    }
-
-    @media (max-width: 600px) {
-        .privacy-card {
-            padding: 24px 20px;
-        }
-    }
-
-    .privacy-card h1 {
+    /* Privacy-specific typography. Card layout comes from .app-card in base.html. */
+    .app-card h1 {
         font-family: var(--font-heading);
         font-size: 1.5rem;
         font-weight: 600;
@@ -34,7 +17,7 @@
         margin-bottom: 0.5rem;
     }
 
-    .privacy-card h2 {
+    .app-card h2 {
         font-family: var(--font-heading);
         font-size: 1.1rem;
         font-weight: 600;
@@ -43,18 +26,18 @@
         margin-bottom: 0.75rem;
     }
 
-    .privacy-card p, .privacy-card li {
+    .app-card p, .app-card li {
         font-size: 1rem;
         line-height: 1.7;
         color: #3A3530;
     }
 
-    .privacy-card ul {
+    .app-card ul {
         padding-left: 1.25rem;
         margin-bottom: 1rem;
     }
 
-    .privacy-card li {
+    .app-card li {
         margin-bottom: 0.375rem;
     }
 
@@ -62,23 +45,6 @@
         font-size: 0.85rem;
         color: var(--color-text-muted);
         margin-bottom: 2rem;
-    }
-
-    .privacy-btn {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
-        color: var(--color-text);
-        text-decoration: none;
-        background-color: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: 8px;
-        transition: background-color 0.15s ease;
-    }
-
-    .privacy-btn:hover {
-        background-color: var(--color-bg);
-        color: var(--color-text);
     }
 
     .privacy-contact {
@@ -93,11 +59,12 @@
 {% endblock %}
 
 {% block content %}
-<div class="privacy-card">
+<div class="app-card">
 
-    <a href="{% url 'accounts:register' %}" class="privacy-btn" style="margin-bottom: 1rem;">← Back</a>
+    {# Back button: returns to whatever page the user came from. Falls back to home if there is no history. #}
+    <a href="{% url 'home' %}" onclick="if (history.length > 1) { history.back(); return false; }" class="app-card-back-btn">← Back</a>
     <h1>Privacy Notice</h1>
-    <p class="privacy-updated">Last updated: April 2026</p>
+    <p class="privacy-updated">Last updated: May 2026</p>
 
     <h2>Who we are</h2>
     <p>Companion OS is built and operated by Liina Suoniemi / InkNCode Solutions, based in Espoo, Finland.</p>
@@ -107,7 +74,8 @@
 
     <h2>What data we collect</h2>
     <ul>
-        <li><strong>Account data:</strong> your username and password (password is hashed, we cannot read it). We do not collect your real name, email, phone number, or location.</li>
+        <li><strong>Account data:</strong> your username and password (password is hashed, we cannot read it). At account creation we do not collect your real name, email, phone number, or location.</li>
+        <li><strong>Pilot application data (only if you applied):</strong> if you applied to the pilot through the application form on our landing page, we collected your name, email address, and a short answer about what brought you to Companion OS. Your email is used to contact you about the pilot, send you updates as Companion OS evolves, and let you know when new versions are ready. You can ask to be removed from this list at any time by emailing hello@getcompanionos.com.</li>
         <li><strong>Conversations:</strong> what you write and what the AI responds. This is stored so you can come back to past conversations. All conversation content is encrypted in the database.</li>
         <li><strong>Safety events:</strong> if crisis keywords are detected, we log that a safety event happened, the severity level, and the time. We do NOT store what you said. Only a hashed signal that cannot be read back.</li>
         <li><strong>Usage data (only with your consent):</strong> which modes were used, how many tokens were processed, and timestamps. This helps us understand whether the tool is useful. You can opt out.</li>
@@ -116,8 +84,8 @@
 
     <h2>What we do NOT collect</h2>
     <ul>
-        <li>Email addresses</li>
-        <li>Real names</li>
+        <li>Email addresses for accounts (only collected if you applied to the pilot through the landing page form)</li>
+        <li>Real names linked to accounts (only collected if you applied to the pilot)</li>
         <li>Phone numbers</li>
         <li>Location data</li>
         <li>Payment information (there is no payment system)</li>
@@ -149,6 +117,7 @@
     <h2>How long we keep your data</h2>
     <ul>
         <li><strong>Account and conversations:</strong> until you delete your account. When you delete, everything is permanently removed from the database. Not archived. Gone.</li>
+        <li><strong>Pilot application data:</strong> kept until you ask to be removed. Email <a href="mailto:hello@getcompanionos.com">hello@getcompanionos.com</a> and your name, email, and pilot answers are deleted from our records.</li>
         <li><strong>Safety events:</strong> kept indefinitely as an anonymous audit trail. When you delete your account, the safety events remain but your user link is removed. They cannot be traced back to you.</li>
     </ul>
 
@@ -177,14 +146,13 @@
     <div class="privacy-contact">
         <strong>Contact</strong><br>
         Liina Suoniemi / InkNCode Solutions<br>
-        liina.suoniemi@outlook.com<br>
+        hello@getcompanionos.com<br>
         Espoo, Finland<br>
-        Y-tunnus (Finnish business ID): 3422993-8<br>
         Supervisory authority: <a href="https://tietosuoja.fi" target="_blank" rel="noopener">Tietosuojavaltuutetun toimisto</a>
     </div>
 
     <div style="text-align: center; margin-top: 1.5rem;">
-        <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;" class="privacy-btn">↑ Back to top</a>
+        <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;" class="app-card-back-btn">↑ Back to top</a>
     </div>
 
 
