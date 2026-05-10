@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Partnership inquiry — Companion OS{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { overflow-y: auto; }
+
+    /* Wider card than login/register because the form has more fields */
+    .partnership-card {
+        max-width: 640px;
+        margin: 2rem auto;
+        padding: 2.5rem 2rem;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+    }
+
+    .partnership-card h1 {
+        font-family: var(--font-heading);
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--color-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .partnership-card .lede {
+        font-size: 1rem;
+        color: var(--color-text-muted);
+        line-height: 1.7;
+        margin-bottom: 1.75rem;
+    }
+
+    .partnership-card h2 {
+        font-family: var(--font-heading);
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--color-text);
+        margin-top: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .partnership-card p {
+        font-size: 0.95rem;
+        line-height: 1.7;
+        color: var(--color-text);
+    }
+
+    .partnership-card .form-note {
+        font-size: 0.825rem;
+        color: var(--color-text-muted);
+        margin-top: 0.875rem;
+        line-height: 1.6;
+    }
+
+    .partnership-card label.form-label {
+        font-weight: 500;
+    }
+
+    .partnership-card .required {
+        color: var(--color-accent);
+        margin-left: 0.25rem;
+    }
+
+    .partnership-card .error-msg {
+        background-color: #FBE9E7;
+        border: 1px solid #D84A2D;
+        color: #8B2A1A;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .partnership-card .success-box {
+        text-align: center;
+        padding: 2rem 1rem;
+    }
+
+    .partnership-card .success-box h2 {
+        margin-top: 0;
+    }
+
+    .partnership-card .what-companion-is {
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        line-height: 1.7;
+        color: var(--color-text-muted);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="partnership-card">
+
+    {# Back to home — same pattern as login/register/privacy #}
+    <a href="{% url 'home' %}" class="app-card-back-btn">← Home</a>
+
+    {% if success %}
+    <div class="success-box">
+        <h1>Thank you for reaching out.</h1>
+        <p>I will read your inquiry personally and reply within a week. Pilot conversations move slowly because I want them to be the right fit before either of us commits.</p>
+        <p>If anything is urgent, you can also email <a href="mailto:hello@getcompanionos.com">hello@getcompanionos.com</a> directly.</p>
+        <p style="margin-top: 2rem;"><a href="{% url 'home' %}" class="btn btn-primary-warm">Back to home</a></p>
+    </div>
+    {% else %}
+
+    <h1>Partnership inquiry</h1>
+    <p class="lede">For organizations interested in offering Companion OS to the people they already serve. Reentry programs, recovery services, rehabilitation centers, healthcare providers, employers, schools.</p>
+
+    <div class="what-companion-is">
+        <strong>What Companion OS is:</strong> an educational cognitive support tool that teaches practical coping skills (panic, cravings, cognitive distortions, self-criticism, planning, decision-making, boundaries, communication, study and reading support, daily anchoring). It is not therapy and not a medical device. It does not diagnose, treat, or monitor any condition. Privacy and security are first-class concerns throughout the build.
+    </div>
+
+    <p>Right now Companion is in a small invite-only individual-user pilot. The next pilot wave is planned for organizations: 30-50 users hosted through a partner organization that already has the trust relationship with the people the tool is built for. If that fits what you do, I would like to hear from you.</p>
+
+    <p>Fields marked with a small mark are required. Everything else helps me prepare for our conversation but is optional.</p>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if error %}
+        <div class="error-msg">{{ error }}</div>
+        {% endif %}
+
+        <h2>About the organization</h2>
+
+        <div class="mb-3">
+            <label for="organization_name" class="form-label">Organization name<span class="required">*</span></label>
+            <input type="text" id="organization_name" name="organization_name" class="form-control" value="{{ form_data.organization_name|default:'' }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="organization_type" class="form-label">Type of organization<span class="required">*</span></label>
+            <select id="organization_type" name="organization_type" class="form-control" required>
+                <option value="ngo" {% if form_data.organization_type == "ngo" %}selected{% endif %}>Non-governmental organization (NGO)</option>
+                <option value="rehab" {% if form_data.organization_type == "rehab" %}selected{% endif %}>Rehabilitation or recovery service</option>
+                <option value="healthcare" {% if form_data.organization_type == "healthcare" %}selected{% endif %}>Healthcare provider or clinic</option>
+                <option value="reentry" {% if form_data.organization_type == "reentry" %}selected{% endif %}>Reentry / corrections program</option>
+                <option value="employer" {% if form_data.organization_type == "employer" %}selected{% endif %}>Employer or EAP</option>
+                <option value="school" {% if form_data.organization_type == "school" %}selected{% endif %}>School or university</option>
+                <option value="research" {% if form_data.organization_type == "research" %}selected{% endif %}>Research institution</option>
+                <option value="other" {% if not form_data.organization_type or form_data.organization_type == "other" %}selected{% endif %}>Other</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="country" class="form-label">Country<span class="required">*</span></label>
+            <select id="country" name="country" class="form-control" required>
+                <option value="fi" {% if not form_data.country or form_data.country == "fi" %}selected{% endif %}>Finland</option>
+                <option value="ee" {% if form_data.country == "ee" %}selected{% endif %}>Estonia</option>
+                <option value="other" {% if form_data.country == "other" %}selected{% endif %}>Other</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="target_population" class="form-label">Who does the organization serve?</label>
+            <textarea id="target_population" name="target_population" class="form-control" rows="2" placeholder="A few words is enough. E.g. people leaving prison, recovery program participants, employees in high-stress roles, students.">{{ form_data.target_population|default:'' }}</textarea>
+        </div>
+
+        <h2>Contact person</h2>
+
+        <div class="mb-3">
+            <label for="contact_person" class="form-label">Your name<span class="required">*</span></label>
+            <input type="text" id="contact_person" name="contact_person" class="form-control" value="{{ form_data.contact_person|default:'' }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="role" class="form-label">Your role</label>
+            <input type="text" id="role" name="role" class="form-control" placeholder="Job title or function" value="{{ form_data.role|default:'' }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email<span class="required">*</span></label>
+            <input type="email" id="email" name="email" class="form-control" value="{{ form_data.email|default:'' }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="phone" class="form-label">Phone</label>
+            <input type="tel" id="phone" name="phone" class="form-control" placeholder="Optional" value="{{ form_data.phone|default:'' }}">
+        </div>
+
+        <h2>What brings you here</h2>
+
+        <div class="mb-3">
+            <label for="what_brings_you" class="form-label">What is your organization looking for?<span class="required">*</span></label>
+            <textarea id="what_brings_you" name="what_brings_you" class="form-control" rows="5" placeholder="What problem are you trying to solve? What does support look like for the people you serve right now? A few sentences is enough." required>{{ form_data.what_brings_you|default:'' }}</textarea>
+        </div>
+
+        <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary-warm w-100">Send inquiry</button>
+        </div>
+
+        <p class="form-note">By sending this inquiry you agree to the <a href="{% url 'privacy' %}">Privacy Notice</a>. The information you share is used only to evaluate the partnership and is never sold or shared with third parties. You can ask to be removed from our records at any time by emailing hello@getcompanionos.com.</p>
+    </form>
+    {% endif %}
+
+</div>
+{% endblock %}

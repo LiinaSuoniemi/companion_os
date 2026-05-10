@@ -214,3 +214,83 @@ class PilotApplication(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.email}) — {self.status}"
+
+
+class PartnershipInquiry(models.Model):
+    """
+    B2B partnership inquiries from organizations.
+
+    Different from PilotApplication (individual users). This is for
+    rehabilitation centers, NGOs, employers, healthcare providers,
+    schools, and similar institutions interested in offering Companion OS
+    to the people they already serve.
+    """
+
+    ORG_TYPE_CHOICES = [
+        ("ngo", "Non-governmental organization (NGO)"),
+        ("rehab", "Rehabilitation or recovery service"),
+        ("healthcare", "Healthcare provider or clinic"),
+        ("reentry", "Reentry / corrections program"),
+        ("employer", "Employer or EAP"),
+        ("school", "School or university"),
+        ("research", "Research institution"),
+        ("other", "Other"),
+    ]
+
+    COUNTRY_CHOICES = [
+        ("fi", "Finland"),
+        ("ee", "Estonia"),
+        ("other", "Other"),
+    ]
+
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("in_conversation", "In conversation"),
+        ("declined", "Declined"),
+        ("partnered", "Partnered"),
+    ]
+
+    organization_name = models.CharField(max_length=200)
+    contact_person = models.CharField(max_length=200)
+    role = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Job title or role of the contact person (optional).",
+    )
+    email = models.EmailField()
+    phone = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Optional. Some partners prefer phone for first contact.",
+    )
+    organization_type = models.CharField(
+        max_length=20,
+        choices=ORG_TYPE_CHOICES,
+        default="other",
+    )
+    country = models.CharField(
+        max_length=10,
+        choices=COUNTRY_CHOICES,
+        default="fi",
+    )
+    target_population = models.TextField(
+        blank=True,
+        help_text="Optional. Who does the organization serve?",
+    )
+    what_brings_you = models.TextField(
+        help_text="What is the organization looking for? What problem are they trying to solve?",
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    notes = models.TextField(
+        blank=True,
+        help_text="Internal notes after a conversation. Not shown to the inquirer.",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Partnership inquiry"
+        verbose_name_plural = "Partnership inquiries"
+
+    def __str__(self):
+        return f"{self.organization_name} ({self.contact_person}) — {self.status}"

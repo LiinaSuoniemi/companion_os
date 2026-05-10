@@ -15,3 +15,7 @@ postgres_data/
 
 # Internal audit and scan reports (VIBECODER, GUARDIAN-OS, SENTINEL output)
 reviews/
+
+# Local tool configs that should never reach the public repo
+.claude/
+.firecrawl/

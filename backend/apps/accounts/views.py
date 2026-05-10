@@ -13,7 +13,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 
 from .forms import RegisterForm
-from .models import ImpactSurvey, PilotApplication
+from .models import ImpactSurvey, PartnershipInquiry, PilotApplication
 
 
 class RegisterView(View):
@@ -139,6 +139,77 @@ class PilotApplicationView(View):
 
         PilotApplication.objects.create(name=name, email=email, what_brings_you=what_brings_you)
         return render(request, "landing.html", {"success": True})
+
+
+class PartnershipInquiryView(View):
+    """
+    B2B partnership inquiries from organizations.
+
+    GET  → show the partnership inquiry page with form
+    POST → validate, save inquiry, show confirmation
+
+    For organizations interested in offering Companion OS to the people
+    they already serve. Different from PilotApplication (individuals).
+    """
+
+    template_name = "accounts/partnership.html"
+
+    def get(self, request):
+        return render(request, self.template_name, {})
+
+    def post(self, request):
+        organization_name = request.POST.get("organization_name", "").strip()
+        contact_person = request.POST.get("contact_person", "").strip()
+        role = request.POST.get("role", "").strip()
+        email = request.POST.get("email", "").strip()
+        phone = request.POST.get("phone", "").strip()
+        organization_type = request.POST.get("organization_type", "other").strip()
+        country = request.POST.get("country", "fi").strip()
+        target_population = request.POST.get("target_population", "").strip()
+        what_brings_you = request.POST.get("what_brings_you", "").strip()
+
+        # Required fields validation
+        if not organization_name or not contact_person or not email or not what_brings_you:
+            return render(
+                request,
+                self.template_name,
+                {
+                    "error": "Please fill in the required fields (organization, contact person, email, and what brings you).",
+                    "form_data": {
+                        "organization_name": organization_name,
+                        "contact_person": contact_person,
+                        "role": role,
+                        "email": email,
+                        "phone": phone,
+                        "organization_type": organization_type,
+                        "country": country,
+                        "target_population": target_population,
+                        "what_brings_you": what_brings_you,
+                    },
+                },
+            )
+
+        # Validate organization_type and country are in choices (defensive — strict
+        # against POST tampering even though the form has a select element).
+        valid_org_types = {choice[0] for choice in PartnershipInquiry.ORG_TYPE_CHOICES}
+        valid_countries = {choice[0] for choice in PartnershipInquiry.COUNTRY_CHOICES}
+        if organization_type not in valid_org_types:
+            organization_type = "other"
+        if country not in valid_countries:
+            country = "other"
+
+        PartnershipInquiry.objects.create(
+            organization_name=organization_name,
+            contact_person=contact_person,
+            role=role,
+            email=email,
+            phone=phone,
+            organization_type=organization_type,
+            country=country,
+            target_population=target_population,
+            what_brings_you=what_brings_you,
+        )
+        return render(request, self.template_name, {"success": True})
 
 
 @method_decorator(login_required, name="dispatch")

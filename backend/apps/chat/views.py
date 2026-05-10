@@ -27,6 +27,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import Conversation, Message
 from .prompts import detect_mode, get_system_prompt, CRISIS_KEYWORDS
+from .url_validator import sanitize_outgoing_text
 from apps.safety.models import SafetyEvent
 from apps.usage.models import UsageEvent
 
@@ -255,10 +256,14 @@ class ChatView(View):
             messages=history,
         )
 
+        # Sanitize outgoing text — strips any URLs not on the allowlist.
+        # Defense-in-depth on top of the prompts.py "never invent a URL" rule.
+        sanitized_text = sanitize_outgoing_text(response.content[0].text)
+
         Message.objects.create(
             conversation=conversation,
             role="assistant",
-            content=response.content[0].text,
+            content=sanitized_text,
             active_mode=conversation.active_mode,
         )
 
@@ -400,7 +405,14 @@ class StreamView(View):
                 output_tokens = final_message.usage.output_tokens if final_message else 0
 
             # Stream complete — save full response to database
-            complete_text = "".join(full_response)
+            # Sanitize outgoing text before persisting. Strips any URLs
+            # not on the allowlist. Defense-in-depth on top of the
+            # prompts.py "never invent a URL" rule. Note: per-chunk
+            # sanitization (which would also protect URLs from showing
+            # on the user's screen during streaming) is a future
+            # enhancement; for now the user's screen may briefly show
+            # an unsanitized URL but the DB record is sanitized.
+            complete_text = sanitize_outgoing_text("".join(full_response))
             Message.objects.create(
                 conversation=conversation,
                 role="assistant",

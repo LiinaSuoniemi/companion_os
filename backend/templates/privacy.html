@@ -76,6 +76,7 @@
     <ul>
         <li><strong>Account data:</strong> your username and password (password is hashed, we cannot read it). At account creation we do not collect your real name, email, phone number, or location.</li>
         <li><strong>Pilot application data (only if you applied):</strong> if you applied to the pilot through the application form on our landing page, we collected your name, email address, and a short answer about what brought you to Companion OS. Your email is used to contact you about the pilot, send you updates as Companion OS evolves, and let you know when new versions are ready. You can ask to be removed from this list at any time by emailing hello@getcompanionos.com.</li>
+        <li><strong>Partnership inquiry data (only if you submitted one):</strong> if your organization submitted an inquiry through the partnership form, we collected your organization name, type of organization, country, the contact person's name, role, email, optional phone, optional description of who the organization serves, and what your organization is looking for. This is used only to evaluate the potential partnership and prepare for our conversation. It is never sold or shared with third parties. You can ask to be removed at any time by emailing hello@getcompanionos.com.</li>
         <li><strong>Conversations:</strong> what you write and what the AI responds. This is stored so you can come back to past conversations. All conversation content is encrypted in the database.</li>
         <li><strong>Safety events:</strong> if crisis keywords are detected, we log that a safety event happened, the severity level, and the time. We do NOT store what you said. Only a hashed signal that cannot be read back.</li>
         <li><strong>Usage data (only with your consent):</strong> which modes were used, how many tokens were processed, and timestamps. This helps us understand whether the tool is useful. You can opt out.</li>
@@ -118,6 +119,7 @@
     <ul>
         <li><strong>Account and conversations:</strong> until you delete your account. When you delete, everything is permanently removed from the database. Not archived. Gone.</li>
         <li><strong>Pilot application data:</strong> kept until you ask to be removed. Email <a href="mailto:hello@getcompanionos.com">hello@getcompanionos.com</a> and your name, email, and pilot answers are deleted from our records.</li>
+        <li><strong>Partnership inquiry data:</strong> kept until the partnership conversation is concluded (either declined or active partnership) or you ask to be removed. Email <a href="mailto:hello@getcompanionos.com">hello@getcompanionos.com</a> and your organization's inquiry is deleted.</li>
         <li><strong>Safety events:</strong> kept indefinitely as an anonymous audit trail. When you delete your account, the safety events remain but your user link is removed. They cannot be traced back to you.</li>
     </ul>
 
@@ -127,6 +129,27 @@
         <li><strong>Anthropic (Claude API):</strong> your conversation is sent to the Claude API to generate responses. <a href="https://www.anthropic.com/legal/commercial-terms" target="_blank" rel="noopener">Their commercial terms of service</a> govern how they handle this data.</li>
         <li><strong>Railway (hosting):</strong> the database is hosted on Railway. <a href="https://railway.com/legal/privacy" target="_blank" rel="noopener">Their privacy policy</a> applies to infrastructure security.</li>
     </ul>
+
+    <h2>What Anthropic actually sees, in plain language</h2>
+    <p>Because Anthropic provides the language model that powers Companion, every message you send is read by their model on their server so the AI can respond. You should know exactly what that means.</p>
+    <ul>
+        <li><strong>What we send to Anthropic:</strong> the content of your messages, your conversation history within this app, and the system prompt that shapes how the AI responds.</li>
+        <li><strong>What we never send:</strong> your username, password, email, account ID, language preference, or any other identifier we hold. Anthropic cannot tell that two conversations come from the same Companion user unless the conversation content itself reveals it.</li>
+        <li><strong>Retention:</strong> Anthropic keeps operational logs for up to 30 days for safety and abuse review, then deletes them. Source: <a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noopener">Anthropic Privacy Policy</a>, verified May 2026.</li>
+        <li><strong>Training:</strong> Anthropic does not train on commercial API conversations. Your messages do not become part of any future model.</li>
+        <li><strong>Transit:</strong> data travels over HTTPS. The model reads the message in plaintext on Anthropic's server in order to respond.</li>
+    </ul>
+
+    <h2>What encryption protects against, and what it does not</h2>
+    <p>"Your data is encrypted" is true here, but it does not mean what most users assume. Being honest about the boundary:</p>
+    <ul>
+        <li><strong>Encryption at rest:</strong> our database file is encrypted. If someone stole the database, they would see gibberish. This protects against database theft.</li>
+        <li><strong>Encryption in transit:</strong> messages travel between you, our server, and Anthropic's server over HTTPS. This protects against someone snooping on the network.</li>
+        <li><strong>What encryption does NOT protect against:</strong> Anthropic reading the content of your messages while their model generates a response. The model needs the plaintext to respond. The only way around this is running the model on our own servers, which is not yet practical for this kind of product. We document this so you can decide what to share.</li>
+    </ul>
+
+    <h2>Your best protection</h2>
+    <p>The single most useful habit when using any AI app, including this one, is to not paste anything you would not put into a search engine. Personal ID numbers (henkilötunnus, isikukood), home addresses combined with full birthdates, bank account numbers, PINs, passwords, security codes, and photos of identity documents do not belong in any AI conversation. Companion will gently note it if you share something sensitive and offer steps to protect yourself, but the safer habit is upstream: do not paste it in the first place.</p>
 
     <h2>Your rights</h2>
     <p>Under GDPR you have the right to:</p>

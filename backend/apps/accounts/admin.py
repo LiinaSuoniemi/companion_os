@@ -7,7 +7,7 @@ invite codes from the admin panel on your phone.
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import InviteCode, ImpactSurvey, PilotApplication, User
+from .models import InviteCode, ImpactSurvey, PartnershipInquiry, PilotApplication, User
 
 
 @admin.register(User)
@@ -36,3 +36,25 @@ class PilotApplicationAdmin(admin.ModelAdmin):
     list_filter = ("status",)
     search_fields = ("name", "email")
     readonly_fields = ("created_at",)
+
+
+@admin.register(PartnershipInquiry)
+class PartnershipInquiryAdmin(admin.ModelAdmin):
+    list_display = ("organization_name", "contact_person", "email", "organization_type", "country", "status", "created_at")
+    list_filter = ("status", "organization_type", "country")
+    search_fields = ("organization_name", "contact_person", "email")
+    readonly_fields = ("created_at",)
+    fieldsets = (
+        ("Organization", {
+            "fields": ("organization_name", "organization_type", "country", "target_population"),
+        }),
+        ("Contact", {
+            "fields": ("contact_person", "role", "email", "phone"),
+        }),
+        ("Inquiry", {
+            "fields": ("what_brings_you", "status", "notes"),
+        }),
+        ("Metadata", {
+            "fields": ("created_at",),
+        }),
+    )

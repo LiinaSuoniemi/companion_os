@@ -14,7 +14,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from . import views
-from .views import PilotApplicationView
+from .views import PartnershipInquiryView, PilotApplicationView
 
 app_name = "accounts"
 
@@ -48,5 +48,10 @@ urlpatterns = [
         "apply/",
         PilotApplicationView.as_view(),
         name="pilot_apply",
+    ),
+    path(
+        "partnership/",
+        PartnershipInquiryView.as_view(),
+        name="partnership",
     ),
 ]
