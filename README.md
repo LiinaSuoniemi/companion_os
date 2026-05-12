@@ -1,4 +1,4 @@
-# Companion OS
+# Companion OS™
 
 An educational AI companion built for people who need more than a chatbot.
 
