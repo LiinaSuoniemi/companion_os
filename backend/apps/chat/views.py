@@ -28,6 +28,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Conversation, Message
 from .prompts import detect_mode, get_system_prompt, CRISIS_KEYWORDS
 from .url_validator import sanitize_outgoing_text
+from .input_validator import detect_injection, INJECTION_SAFE_RESPONSE
 from apps.safety.models import SafetyEvent
 from apps.usage.models import UsageEvent
 
@@ -222,6 +223,11 @@ class ChatView(View):
         if not user_input:
             return redirect("chat:chat", pk=pk)
 
+        is_injection, _pattern = detect_injection(user_input)
+        if is_injection:
+            logger.warning("Injection attempt blocked (non-streaming) user=%s pattern=%s", request.user.id, _pattern)
+            return redirect("chat:chat", pk=pk)
+
         conversation = self.get_conversation(request.user, pk)
         if not conversation:
             return redirect("chat:conversation_list")
@@ -331,6 +337,14 @@ class StreamView(View):
         if len(user_input) > MAX_MESSAGE_LENGTH:
             return StreamingHttpResponse(
                 self._error_stream("Message too long. Please keep messages under 2000 characters."),
+                content_type="text/event-stream",
+            )
+
+        is_injection, _pattern = detect_injection(user_input)
+        if is_injection:
+            logger.warning("Injection attempt blocked user=%s pattern=%s", request.user.id, _pattern)
+            return StreamingHttpResponse(
+                self._error_stream(INJECTION_SAFE_RESPONSE),
                 content_type="text/event-stream",
             )
 
