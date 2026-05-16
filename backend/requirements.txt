@@ -1,5 +1,5 @@
 # Django core
-Django==4.2.11
+Django==4.2.30
 gunicorn==21.2.0
 
 # PostgreSQL driver
