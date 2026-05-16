@@ -8,6 +8,8 @@ CBVs are easier to extend later (e.g. adding OAuth on top).
 """
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django.shortcuts import redirect, render
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -79,13 +81,19 @@ class ImpactSurveyView(View):
             if request.POST.get(f"situation_{option}"):
                 situation.append(option)
 
+        def _scale(val):
+            try:
+                return max(1, min(5, int(val)))
+            except (TypeError, ValueError):
+                return 3
+
         survey = ImpactSurvey(
             user=request.user,
             survey_type=survey_type,
-            handle_difficult_moments=int(request.POST.get("q1", 3)),
-            notice_stress_building=int(request.POST.get("q2", 3)),
-            have_something_to_try=int(request.POST.get("q3", 3)),
-            get_through_daily_tasks=int(request.POST.get("q4", 3)),
+            handle_difficult_moments=_scale(request.POST.get("q1")),
+            notice_stress_building=_scale(request.POST.get("q2")),
+            have_something_to_try=_scale(request.POST.get("q3")),
+            get_through_daily_tasks=_scale(request.POST.get("q4")),
             age_range=request.POST.get("age_range", ""),
             situation=situation,
             country=request.POST.get("country_other", "").strip() or request.POST.get("country", ""),
@@ -93,7 +101,7 @@ class ImpactSurveyView(View):
         )
 
         if survey_type == "followup":
-            survey.feel_more_grounded = int(request.POST.get("q5", 3))
+            survey.feel_more_grounded = _scale(request.POST.get("q5"))
             survey.what_changed = request.POST.get("what_changed", "")
 
         survey.save()
@@ -127,12 +135,17 @@ class ImpactSurveyView(View):
 
 class PilotApplicationView(View):
     def post(self, request):
-        name = request.POST.get("name", "").strip()
-        email = request.POST.get("email", "").strip()
-        what_brings_you = request.POST.get("what_brings_you", "").strip()
+        name = request.POST.get("name", "").strip()[:200]
+        email = request.POST.get("email", "").strip()[:254]
+        what_brings_you = request.POST.get("what_brings_you", "").strip()[:2000]
 
         if not name or not email or not what_brings_you:
             return render(request, "landing.html", {"error": "Please fill in all fields.", "scroll_to_form": True})
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            return render(request, "landing.html", {"error": "Please enter a valid email address.", "scroll_to_form": True})
 
         if PilotApplication.objects.filter(email=email).exists():
             return render(request, "landing.html", {"error": "This email already reached out. I'll be in touch.", "scroll_to_form": True})

@@ -23,7 +23,6 @@ from django.http import StreamingHttpResponse
 from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.decorators.csrf import csrf_exempt
 
 from .models import Conversation, Message
 from .prompts import detect_mode, get_system_prompt, CRISIS_KEYWORDS

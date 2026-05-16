@@ -157,6 +157,8 @@
         {% endif %}
     </div>
 
+    <p style="font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: 1.5rem;">No right or wrong answers. Choose the option that feels most true for you right now.</p>
+
     <form method="post">
         {% csrf_token %}
         <input type="hidden" name="survey_type" value="{{ survey_type }}">
