@@ -222,6 +222,12 @@ class ChatView(View):
         if not user_input:
             return redirect("chat:chat", pk=pk)
 
+        # Log crisis event first — before injection check — so a message that
+        # contains both a crisis signal and an injection phrase still gets logged.
+        message_lower = user_input.lower()
+        if any(kw in message_lower for kw in CRISIS_KEYWORDS):
+            _log_crisis_event(request.user, user_input)
+
         is_injection, _pattern = detect_injection(user_input)
         if is_injection:
             logger.warning("Injection attempt blocked (non-streaming) user=%s pattern=%s", request.user.id, _pattern)
@@ -235,11 +241,6 @@ class ChatView(View):
         if new_mode != conversation.active_mode:
             conversation.active_mode = new_mode
             conversation.save()
-
-        # Log crisis event if crisis keywords were detected.
-        message_lower = user_input.lower()
-        if any(kw in message_lower for kw in CRISIS_KEYWORDS):
-            _log_crisis_event(request.user, user_input)
 
         Message.objects.create(
             conversation=conversation,
@@ -339,6 +340,12 @@ class StreamView(View):
                 content_type="text/event-stream",
             )
 
+        # Log crisis event first — before injection check — so a message that
+        # contains both a crisis signal and an injection phrase still gets logged.
+        message_lower = user_input.lower()
+        if any(kw in message_lower for kw in CRISIS_KEYWORDS):
+            _log_crisis_event(request.user, user_input)
+
         is_injection, _pattern = detect_injection(user_input)
         if is_injection:
             logger.warning("Injection attempt blocked user=%s pattern=%s", request.user.id, _pattern)
@@ -359,11 +366,6 @@ class StreamView(View):
         if new_mode != conversation.active_mode:
             conversation.active_mode = new_mode
             conversation.save()
-
-        # Log crisis event if crisis keywords detected
-        message_lower = user_input.lower()
-        if any(kw in message_lower for kw in CRISIS_KEYWORDS):
-            _log_crisis_event(request.user, user_input)
 
         # Save user message
         Message.objects.create(
