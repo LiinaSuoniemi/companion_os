@@ -6,7 +6,7 @@ gunicorn==21.2.0
 psycopg2-binary==2.9.9
 
 # Environment variables
-python-dotenv==1.0.1
+python-dotenv==1.2.2
 
 # Anthropic API
 anthropic==0.49.0
