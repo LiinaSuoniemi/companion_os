@@ -254,6 +254,14 @@
         cursor: not-allowed;
     }
 
+    .btn-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
     /* Phone number pills inside chat bubbles */
     .chat-phone-btn {
         display: inline-block;
@@ -504,6 +512,7 @@
             {% else %}{{ conversation.active_mode }}{% endif %}
         </span>
         </div>
+        <div id="msgLengthWarning" style="display:none; text-align:center; font-size:0.8rem; color:#c0392b; margin-bottom:0.4rem;"></div>
         <form method="post" class="input-row" id="chatForm">
             {% csrf_token %}
             <textarea
@@ -515,19 +524,21 @@
                 autocomplete="off"
                 autofocus
             ></textarea>
-            <button type="button" class="call-btn" id="callBtn" aria-label="Get help making a call" title="Get help making a call">
-                <!-- Phone handset icon -->
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.37 12 19.79 19.79 0 0 1 1.21 3.22 2 2 0 0 1 3.2 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"></path>
-                </svg>
-            </button>
-            <button type="submit" class="send-btn" id="sendBtn" aria-label="Send message">
-                <!-- Send arrow icon -->
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-            </button>
+            <div class="btn-stack">
+                <button type="button" class="call-btn" id="callBtn" aria-label="Get help making a call" title="Get help making a call">
+                    <!-- Phone handset icon -->
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.37 12 19.79 19.79 0 0 1 1.21 3.22 2 2 0 0 1 3.2 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"></path>
+                    </svg>
+                </button>
+                <button type="submit" class="send-btn" id="sendBtn" aria-label="Send message">
+                    <!-- Send arrow icon -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
         </form>
     </div>
 
@@ -573,11 +584,28 @@
     // Scroll to bottom
     messageArea.scrollTop = messageArea.scrollHeight;
 
+    const lengthWarning = document.getElementById('msgLengthWarning');
+    const MAX_CHARS = 2000;
+    const lengthWarningText = {
+        en: 'Message too long. Please keep messages under 2000 characters.',
+        fi: 'Viesti on liian pitkä. Pidä viestit alle 2000 merkin mittaisina.',
+        et: 'Sõnum on liiga pikk. Hoia sõnumid alla 2000 tähemärgi.',
+    };
+
     // Auto-grow textarea
     input.addEventListener('input', function () {
         this.style.height = 'auto';
         this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        sendBtn.disabled = !this.value.trim();
+        const tooLong = this.value.length > MAX_CHARS;
+        if (tooLong) {
+            const lang = detectChatLang();
+            lengthWarning.textContent = lengthWarningText[lang] || lengthWarningText.en;
+            lengthWarning.style.display = 'block';
+            sendBtn.disabled = true;
+        } else {
+            lengthWarning.style.display = 'none';
+            sendBtn.disabled = !this.value.trim();
+        }
     });
     sendBtn.disabled = true;
 
@@ -707,8 +735,25 @@
         });
     }
 
+    function detectChatLang() {
+        const bubbles = messageArea.querySelectorAll('.message-assistant');
+        if (!bubbles.length) return 'en';
+        const text = Array.from(bubbles).slice(-3).map(b => b.textContent).join(' ');
+        // õ is Estonian-only — not in Finnish
+        if (/[õ]/.test(text)) return 'et';
+        // ä/ö common in Finnish; also check Finnish words
+        if (/[äöÄÖ]/.test(text) || /\b(olen|sinä|voisi|tuntuu|onko|että)\b/i.test(text)) return 'fi';
+        return 'en';
+    }
+
     function triggerCallPrep() {
-        sendMessage('I need help making a call', { call_prep: true });
+        const lang = detectChatLang();
+        const msgs = {
+            en: 'I need help making a call',
+            fi: 'Tarvitsen apua puhelun soittamisessa',
+            et: 'Mul on abi vaja kõne tegemiseks',
+        };
+        sendMessage(msgs[lang], { call_prep: true });
     }
 
     // Convert plain text to safe HTML paragraphs — for assistant bubbles only.
