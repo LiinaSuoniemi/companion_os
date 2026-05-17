@@ -97,12 +97,12 @@ class ImpactSurveyView(View):
             age_range=request.POST.get("age_range", ""),
             situation=situation,
             country=request.POST.get("country_other", "").strip() or request.POST.get("country", ""),
-            what_brought_you=request.POST.get("what_brought_you", ""),
+            what_brought_you=request.POST.get("what_brought_you", "")[:2000],
         )
 
         if survey_type == "followup":
             survey.feel_more_grounded = _scale(request.POST.get("q5"))
-            survey.what_changed = request.POST.get("what_changed", "")
+            survey.what_changed = request.POST.get("what_changed", "")[:2000]
 
         survey.save()
         return redirect("chat:conversation_list")
@@ -178,8 +178,8 @@ class PartnershipInquiryView(View):
         phone = request.POST.get("phone", "").strip()
         organization_type = request.POST.get("organization_type", "other").strip()
         country = request.POST.get("country", "fi").strip()
-        target_population = request.POST.get("target_population", "").strip()
-        what_brings_you = request.POST.get("what_brings_you", "").strip()
+        target_population = request.POST.get("target_population", "").strip()[:2000]
+        what_brings_you = request.POST.get("what_brings_you", "").strip()[:2000]
 
         # Required fields validation
         if not organization_name or not contact_person or not email or not what_brings_you:
@@ -233,8 +233,12 @@ class DeleteAccountView(View):
 
     What gets deleted (CASCADE):
     - All conversations and their messages
-    - SafetyEvent records: user FK set to NULL (audit trail preserved, user unlinked)
     - The user account itself
+
+    What is kept with user FK set to NULL:
+    - SafetyEvent records (audit trail preserved, user unlinked)
+    - ImpactSurvey responses (anonymised research data, user unlinked)
+    - UsageEvent records (anonymised aggregate data, user unlinked)
 
     Why permanent?
     GDPR Article 17 — right to erasure. When a user deletes their account,
