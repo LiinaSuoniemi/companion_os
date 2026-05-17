@@ -182,7 +182,8 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 0.3rem;
+        justify-content: space-between;
+        padding-bottom: 3px;
     }
 
     .message-input {
@@ -745,12 +746,16 @@
     }
 
     function detectChatLang() {
-        const bubbles = messageArea.querySelectorAll('.message-assistant');
-        if (!bubbles.length) return 'en';
-        const text = Array.from(bubbles).slice(-3).map(b => b.textContent).join(' ');
+        // User messages are the most reliable signal — they type in their own language.
+        // AI responses are a secondary fallback in case there are no user bubbles yet.
+        const userBubbles = Array.from(messageArea.querySelectorAll('.message-user')).slice(-3);
+        const aiBubbles = Array.from(messageArea.querySelectorAll('.message-assistant')).slice(-2);
+        const combined = [...userBubbles, ...aiBubbles];
+        if (!combined.length) return 'en';
+        const text = combined.map(b => b.textContent).join(' ');
         // õ and ü are Estonian-only — Finnish uses y, not ü
         if (/[õü]/.test(text) || /\b(mul|kas|jah|hakkama)\b/i.test(text)) return 'et';
-        // ä/ö in Finnish; 'olen' removed — it exists in both languages
+        // ä/ö appear in Finnish; check Finnish-specific words
         if (/[äöÄÖ]/.test(text) || /\b(sinä|voisi|tuntuu|onko|että|minä|miten)\b/i.test(text)) return 'fi';
         return 'en';
     }
