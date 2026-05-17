@@ -173,9 +173,16 @@
     .input-row {
         display: flex;
         gap: 0.5rem;
-        align-items: flex-end;
+        align-items: stretch;
         max-width: 700px;
         margin: 0 auto;
+    }
+
+    .mode-and-input {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
     }
 
     .message-input {
@@ -259,6 +266,7 @@
         flex-direction: column;
         gap: 0.5rem;
         align-items: center;
+        justify-content: flex-end;
         flex-shrink: 0;
     }
 
@@ -488,42 +496,43 @@
 
     <!-- Input bar -->
     <div class="input-bar">
-        <!-- Mode indicator — sits above the input, quiet and informational -->
-        <div style="text-align: center; margin-bottom: 0.5rem;">
-            <span class="mode-badge" id="modeBadge">
-            {% if conversation.active_mode == "auto" %}Listening
-            {% elif conversation.active_mode == "calm" %}With you
-            {% elif conversation.active_mode == "mindfulness" %}Breathing
-            {% elif conversation.active_mode == "steady" %}Here with you
-            {% elif conversation.active_mode == "reality_check" %}Let's look at this
-            {% elif conversation.active_mode == "focus" %}One step
-            {% elif conversation.active_mode == "planning" %}Planning
-            {% elif conversation.active_mode == "decision" %}Deciding
-            {% elif conversation.active_mode == "reflection" %}Reflecting
-            {% elif conversation.active_mode == "boundary" %}Holding ground
-            {% elif conversation.active_mode == "daily" %}Just here
-            {% elif conversation.active_mode == "study" %}Learning
-            {% elif conversation.active_mode == "read" %}Reading
-            {% elif conversation.active_mode == "listen" %}Listening
-            {% elif conversation.active_mode == "express" %}Finding words
-            {% elif conversation.active_mode == "feedback" %}Looking clearly
-            {% elif conversation.active_mode == "habit_aim" %}Building
-            {% elif conversation.active_mode == "help" %}Orienting
-            {% else %}{{ conversation.active_mode }}{% endif %}
-        </span>
-        </div>
-        <div id="msgLengthWarning" style="display:none; text-align:center; font-size:0.8rem; color:#c0392b; margin-bottom:0.4rem;"></div>
         <form method="post" class="input-row" id="chatForm">
             {% csrf_token %}
-            <textarea
-                name="message"
-                id="messageInput"
-                class="message-input"
-                placeholder="What's on your mind?"
-                rows="1"
-                autocomplete="off"
-                autofocus
-            ></textarea>
+            <div class="mode-and-input">
+                <div style="text-align: center;">
+                    <span class="mode-badge" id="modeBadge">
+                    {% if conversation.active_mode == "auto" %}Listening
+                    {% elif conversation.active_mode == "calm" %}With you
+                    {% elif conversation.active_mode == "mindfulness" %}Breathing
+                    {% elif conversation.active_mode == "steady" %}Here with you
+                    {% elif conversation.active_mode == "reality_check" %}Let's look at this
+                    {% elif conversation.active_mode == "focus" %}One step
+                    {% elif conversation.active_mode == "planning" %}Planning
+                    {% elif conversation.active_mode == "decision" %}Deciding
+                    {% elif conversation.active_mode == "reflection" %}Reflecting
+                    {% elif conversation.active_mode == "boundary" %}Holding ground
+                    {% elif conversation.active_mode == "daily" %}Just here
+                    {% elif conversation.active_mode == "study" %}Learning
+                    {% elif conversation.active_mode == "read" %}Reading
+                    {% elif conversation.active_mode == "listen" %}Listening
+                    {% elif conversation.active_mode == "express" %}Finding words
+                    {% elif conversation.active_mode == "feedback" %}Looking clearly
+                    {% elif conversation.active_mode == "habit_aim" %}Building
+                    {% elif conversation.active_mode == "help" %}Orienting
+                    {% else %}{{ conversation.active_mode }}{% endif %}
+                    </span>
+                </div>
+                <div id="msgLengthWarning" style="display:none; text-align:center; font-size:0.8rem; color:#c0392b;"></div>
+                <textarea
+                    name="message"
+                    id="messageInput"
+                    class="message-input"
+                    placeholder="What's on your mind?"
+                    rows="1"
+                    autocomplete="off"
+                    autofocus
+                ></textarea>
+            </div>
             <div class="btn-stack">
                 <button type="button" class="call-btn" id="callBtn" aria-label="Get help making a call" title="Get help making a call">
                     <!-- Phone handset icon -->
@@ -739,10 +748,10 @@
         const bubbles = messageArea.querySelectorAll('.message-assistant');
         if (!bubbles.length) return 'en';
         const text = Array.from(bubbles).slice(-3).map(b => b.textContent).join(' ');
-        // õ is Estonian-only — not in Finnish
-        if (/[õ]/.test(text)) return 'et';
-        // ä/ö common in Finnish; also check Finnish words
-        if (/[äöÄÖ]/.test(text) || /\b(olen|sinä|voisi|tuntuu|onko|että)\b/i.test(text)) return 'fi';
+        // õ and ü are Estonian-only — Finnish uses y, not ü
+        if (/[õü]/.test(text) || /\b(mul|kas|jah|hakkama)\b/i.test(text)) return 'et';
+        // ä/ö in Finnish; 'olen' removed — it exists in both languages
+        if (/[äöÄÖ]/.test(text) || /\b(sinä|voisi|tuntuu|onko|että|minä|miten)\b/i.test(text)) return 'fi';
         return 'en';
     }
 
