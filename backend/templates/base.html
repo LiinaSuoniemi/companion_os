@@ -266,5 +266,28 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     {% block extra_js %}{% endblock %}
+
+    <style>#cookie-ok:hover { box-shadow: 0 0 14px rgba(201,149,42,0.75), 0 0 28px rgba(201,149,42,0.5); }</style>
+    <!-- Cookie consent — essential cookies only, no analytics -->
+    <div id="cookie-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#1A1510; color:#C8BFA8; padding:0.85rem 1.5rem; z-index:9999; border-top:1px solid #3A3028;">
+        <div style="max-width:840px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+            <p style="margin:0; font-size:0.82rem; line-height:1.5;">
+                This site uses essential cookies only — for your session and security. No analytics, no tracking.
+                <a href="{% url 'privacy' %}" style="color:#C9952A; text-decoration:underline;">Privacy Policy</a>
+            </p>
+            <button id="cookie-ok" style="background:#C9952A; border:none; color:#1A1A1A; padding:0.4rem 1.25rem; border-radius:8px; font-size:0.82rem; font-weight:500; cursor:pointer; white-space:nowrap; flex-shrink:0;">Got it</button>
+        </div>
+    </div>
+    <script>
+        (function() {
+            if (!localStorage.getItem('cookies_ok')) {
+                document.getElementById('cookie-banner').style.display = 'block';
+            }
+            document.getElementById('cookie-ok').addEventListener('click', function() {
+                localStorage.setItem('cookies_ok', '1');
+                document.getElementById('cookie-banner').style.display = 'none';
+            });
+        })();
+    </script>
 </body>
 </html>

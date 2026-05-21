@@ -14,7 +14,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from . import views
-from .views import PartnershipInquiryView, PilotApplicationView
+from .views import PartnershipInquiryView, PilotApplicationView, set_language_pref
 
 app_name = "accounts"
 
@@ -53,5 +53,10 @@ urlpatterns = [
         "partnership/",
         PartnershipInquiryView.as_view(),
         name="partnership",
+    ),
+    path(
+        "set-language/",
+        set_language_pref,
+        name="set_language",
     ),
 ]

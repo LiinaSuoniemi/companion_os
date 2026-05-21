@@ -7,6 +7,7 @@ from django.shortcuts import redirect, render
 from django.urls import path, include
 from two_factor.admin import AdminSiteOTPRequired
 from two_factor.urls import urlpatterns as tf_urls
+from apps.accounts.views import _get_lang
 
 # Require TOTP for every admin login. Anyone who reaches /admin/ must
 # have a verified OTP device. Set up a device first via /account/two_factor/setup/
@@ -17,7 +18,7 @@ admin.site.__class__ = AdminSiteOTPRequired
 def home(request):
     if request.user.is_authenticated:
         return redirect("chat:conversation_list")
-    return render(request, "landing.html")
+    return render(request, "landing.html", {"lang": _get_lang(request)})
 
 
 urlpatterns = [

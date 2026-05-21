@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Companion OS™ — A thinking partner for when life gets hard</title>
+    <title>Companion OS™ — {% if lang == 'fi' %}Tuki silloin kun elämä painaa{% elif lang == 'et' %}Tugi siis, kui elu läheb raskeks{% else %}A thinking partner for when life gets hard{% endif %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -187,7 +187,19 @@
             padding: 5rem 1.5rem 4rem;
         }
 
-        .hero h1 {
+        /* Brand name — sits above the tagline, wordmark scale */
+        .hero-brand {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: #F5F0E8;
+            letter-spacing: 0.04em;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        /* Tagline — the big descriptive headline */
+        .hero h2.hero-tagline {
             font-size: clamp(2rem, 5vw, 3.2rem);
             font-weight: 300;
             color: #F5F0E8;
@@ -532,6 +544,12 @@
                     text-align: left;
                 }
 
+                /* Labels inside the light apply-card must override the dark-section cascade */
+                .apply-card label,
+                .apply-card .form-label {
+                    color: var(--color-text);
+                }
+
                 .apply-card .form-note {
                     font-size: 0.8rem;
                     color: var(--color-text-muted);
@@ -680,6 +698,11 @@
                     padding: 3rem 1rem 1.5rem !important;
                 }
 
+                /* Cookie consent dismiss button — same gold glow as back-to-top on hover */
+                #cookie-ok:hover {
+                    box-shadow: 0 0 14px rgba(201, 149, 42, 0.75), 0 0 28px rgba(201, 149, 42, 0.5);
+                }
+
                 /* Gold ghost button on dark background — clearly clickable, not a text link. */
                 .back-to-top-btn {
                     display: inline-block !important;
@@ -715,42 +738,93 @@
             <span class="nav-logo-text">Companion OS™</span>
         </a>
         <div class="nav-links">
+            <!-- Language switcher -->
+            <div style="display:flex; gap:0.25rem; font-size:0.8rem;">
+                <a href="{% url 'accounts:set_language' %}?lang=en&next=/" style="color:{% if lang == 'en' %}var(--color-accent){% else %}var(--color-text-muted){% endif %}; font-weight:{% if lang == 'en' %}500{% else %}400{% endif %}; text-decoration:none; padding:0.2rem 0.35rem; border-radius:4px;">EN</a>
+                <a href="{% url 'accounts:set_language' %}?lang=fi&next=/" style="color:{% if lang == 'fi' %}var(--color-accent){% else %}var(--color-text-muted){% endif %}; font-weight:{% if lang == 'fi' %}500{% else %}400{% endif %}; text-decoration:none; padding:0.2rem 0.35rem; border-radius:4px;">FI</a>
+                <a href="{% url 'accounts:set_language' %}?lang=et&next=/" style="color:{% if lang == 'et' %}var(--color-accent){% else %}var(--color-text-muted){% endif %}; font-weight:{% if lang == 'et' %}500{% else %}400{% endif %}; text-decoration:none; padding:0.2rem 0.35rem; border-radius:4px;">ET</a>
+            </div>
             <div class="dropdown">
                 <button class="btn-nav-menu dropdown-toggle" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
-                    Menu
+                    {% if lang == 'fi' %}Valikko{% elif lang == 'et' %}Menüü{% else %}Menu{% endif %}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="/">Home</a></li>
-                    <li><a class="dropdown-item" href="/accounts/login/">Log in</a></li>
-                    <li><a class="dropdown-item" href="/accounts/register/">Register</a></li>
+                    <li><a class="dropdown-item" href="/">{% if lang == 'fi' %}Etusivu{% elif lang == 'et' %}Avaleht{% else %}Home{% endif %}</a></li>
+                    <li><a class="dropdown-item" href="/accounts/login/">{% if lang == 'fi' %}Kirjaudu sisään{% elif lang == 'et' %}Logi sisse{% else %}Log in{% endif %}</a></li>
+                    <li><a class="dropdown-item" href="/accounts/register/">{% if lang == 'fi' %}Rekisteröidy{% elif lang == 'et' %}Registreeru{% else %}Register{% endif %}</a></li>
                     <li>
                         <hr class="dropdown-divider">
                     </li>
-                    <li><a class="dropdown-item" href="#apply">Request access</a></li>
-                    <li><a class="dropdown-item" href="{% url 'accounts:partnership' %}">For organizations</a></li>
+                    <li><a class="dropdown-item" href="#apply">{% if lang == 'fi' %}Pyydä käyttöoikeutta{% elif lang == 'et' %}Taotle juurdepääsu{% else %}Request access{% endif %}</a></li>
+                    <li><a class="dropdown-item" href="{% url 'accounts:partnership' %}">{% if lang == 'fi' %}Organisaatioille{% elif lang == 'et' %}Organisatsioonidele{% else %}For organizations{% endif %}</a></li>
                     <li>
                         <hr class="dropdown-divider">
                     </li>
-                    <li><a class="dropdown-item" href="{% url 'privacy' %}">Privacy Policy</a></li>
+                    <li><a class="dropdown-item" href="{% url 'privacy' %}">{% if lang == 'fi' %}Tietosuojaseloste{% elif lang == 'et' %}Privaatsuspoliitika{% else %}Privacy Policy{% endif %}</a></li>
                 </ul>
             </div>
-            <a href="#apply" class="btn-apply">Request access</a>
+            <a href="#apply" class="btn-apply">{% if lang == 'fi' %}Pyydä pääsyä{% elif lang == 'et' %}Taotle pääsu{% else %}Request access{% endif %}</a>
         </div>
     </nav>
 
     <!-- ── HERO ──────────────────────────────────────────── -->
     <section class="hero">
-        <h1>A steady presence.<br>For when life gets hard.</h1>
+        <div style="display:flex; align-items:center; justify-content:center; gap:0.75rem; margin-bottom:1.75rem;">
+            <img src="{% static 'images/logo.png' %}" alt="" style="width:44px; height:44px; object-fit:contain; opacity:0.9;">
+            <h1 class="hero-brand">Companion OS™</h1>
+        </div>
+        {% if lang == 'fi' %}
+        <h2 class="hero-tagline">Tasainen tuki.<br>Silloin kun elämä painaa.</h2>
+        <p>Companion OS™ on tekoälytyökalu, joka opettaa selviytymiskeinoja, auttaa vaikeiden hetkien läpi ja pitää seuraa. Se ei ole terapia. Se ei ole diagnoosi. Se on jotain kokeiltavaa, kun tarvitset paikan aloittaa.</p>
+        <a href="#apply" class="btn-apply" style="font-size:1rem; padding: 0.75rem 2rem;">Pyydä käyttöoikeutta</a>
+        {% elif lang == 'et' %}
+        <h2 class="hero-tagline">Stabiilne tugi.<br>Siis, kui elu läheb raskeks.</h2>
+        <p>Companion OS™ on tehisintellekti tööriist, mis õpetab toimetulekuoskusi, aitab sul raskeid hetki läbida ja hoiab sulle seltsi. See pole teraapia. See pole diagnoos. See on midagi proovida, kui vajad kohta, kust alustada.</p>
+        <a href="#apply" class="btn-apply" style="font-size:1rem; padding: 0.75rem 2rem;">Taotle juurdepääsu</a>
+        {% else %}
+        <h2 class="hero-tagline">A steady presence.<br>For when life gets hard.</h2>
         <p>Companion OS™ is an AI tool that teaches coping skills, helps you through difficult moments, and keeps you
             company. It is not therapy. It is not a diagnosis. It is something to try when you need a place to start.
         </p>
         <a href="#apply" class="btn-apply" style="font-size:1rem; padding: 0.75rem 2rem;">Request access</a>
+        {% endif %}
     </section>
 
     <!-- ── WHO THIS IS FOR ───────────────────────────────── -->
     <section class="section">
         <div class="section-inner">
+            {% if lang == 'fi' %}
+            <p class="section-label">Kenelle se on</p>
+            <h2 class="section-title">Rakennettu ihmisille, joiden aivot toimivat eri tavalla paineen alla.</h2>
+            <p style="color: var(--color-text-muted);">Companion OS on suunniteltu ihmisille, joilla ei ole aina ollut oikeita välineitä käsitellä sisällä tapahtuvaa. Niitä on paljon.</p>
+            <ul class="for-who-list">
+                <li>Ihmiset, joilla on vaikea keskittyä, aloittaa tehtäviä tai pysyä raiteilla</li>
+                <li>Ihmiset, jotka hallitsevat ahdistusta, ylikuormitusta tai tunnesäätelyongelmia</li>
+                <li>Päihdekuntoutujat ja traumasta tai vaikeasta ajanjaksosta toipuvat</li>
+                <li>Aivovamman saaneet ja veteraanit, jotka rakentavat arkeaan uudelleen</li>
+                <li>Teini-ikäiset, jotka navigoivat vaikeissa tilanteissa ilman riittävää tukea</li>
+                <li>Yksin asuvat ikäihmiset, jotka tarvitsevat rauhallisen ja luotettavan kumppanin</li>
+                <li>Kaikki, jotka tarvitsevat jonkin paikan aloittaa silloin kun tuntuu jumittuneelta</li>
+            </ul>
+            <div class="gold-divider"></div>
+            <p style="font-size:0.9rem; color: var(--color-text-muted);">Companion OS ei diagnosoi, ei kirjoita reseptejä eikä korvaa ammattiapua. Se opettaa taitoja ja pitää seuraa.</p>
+            {% elif lang == 'et' %}
+            <p class="section-label">Kellele see on</p>
+            <h2 class="section-title">Loodud inimestele, kelle aju töötab surve all teisiti.</h2>
+            <p style="color: var(--color-text-muted);">Companion OS on loodud inimestele, kellel pole alati olnud õigeid vahendeid oma sisemise seisundiga toimetulemiseks. Neid on palju.</p>
+            <ul class="for-who-list">
+                <li>Inimesed, kellel on raske keskenduda, ülesandeid alustada või raja peal püsida</li>
+                <li>Inimesed, kes haldavad ärevust, ülekoormust või emotsionaalset düsregulatsiooni</li>
+                <li>Inimesed, kes taastuvad sõltuvusest, traumast või raskest perioodist</li>
+                <li>Ajutrauma ellujäänud ja veteranid, kes taasloovad oma igapäevaelu</li>
+                <li>Teismelised, kes navigeerivad raskel ajal ilma piisava toeta</li>
+                <li>Üksi elavad eakad inimesed, kes vajavad rahulikku ja usaldusväärset kohalolekut</li>
+                <li>Kõik, kes vajavad kohta, kust alustada, kui tunnevad end kinni jäänud olevat</li>
+            </ul>
+            <div class="gold-divider"></div>
+            <p style="font-size:0.9rem; color: var(--color-text-muted);">Companion OS ei diagnoosi haigusi, ei kirjuta retsepte ega asenda professionaalset abi. See õpetab oskusi ja hoiab seltsi.</p>
+            {% else %}
             <p class="section-label">Who it is for</p>
             <h2 class="section-title">Built for people whose brains work differently under pressure.</h2>
             <p style="color: var(--color-text-muted);">Companion OS was designed for people who have not always had the
@@ -767,12 +841,54 @@
             <div class="gold-divider"></div>
             <p style="font-size:0.9rem; color: var(--color-text-muted);">Companion OS does not diagnose conditions,
                 prescribe treatment, or replace professional help. It teaches skills and keeps you company.</p>
+            {% endif %}
         </div>
     </section>
 
     <!-- ── HOW IT WORKS ──────────────────────────────────── -->
     <section class="section section-alt">
         <div class="section-inner">
+            {% if lang == 'fi' %}
+            <p class="section-label">Miten se toimii</p>
+            <h2 class="section-title">Ei ohjeita tarvita. Sano vain mitä tarvitset.</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Rekisteröidy</h3>
+                    <p>Käytä kutsukoodiasi tilin luomiseen. Vie kaksi minuuttia.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Kerro Companionille mitä tapahtuu</h3>
+                    <p>Suomeksi, englanniksi tai viroksi. Missä muodossa tahansa. Yksi lause riittää.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Käykää läpi se yhdessä</h3>
+                    <p>Yksi askel kerrallaan. Omaan tahtiisi. Ilman tuomitsemista.</p>
+                </div>
+            </div>
+            {% elif lang == 'et' %}
+            <p class="section-label">Kuidas see toimib</p>
+            <h2 class="section-title">Juhiseid pole vaja. Ütle lihtsalt, mida vajad.</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Registreeru</h3>
+                    <p>Kasuta kutsekoodi konto loomiseks. Võtab kaks minutit.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Räägi Companionile, mis toimub</h3>
+                    <p>Eesti, inglise või soome keeles. Mis kujul tahes. Üks lause piisab.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Töötage see koos läbi</h3>
+                    <p>Samm korraga. Sinu tempos. Ilma hinnanguteta.</p>
+                </div>
+            </div>
+            {% else %}
             <p class="section-label">How it works</p>
             <h2 class="section-title">No instructions needed. Just say what you need.</h2>
             <div class="steps">
@@ -792,16 +908,25 @@
                     <p>One step at a time. At your pace. No judgment.</p>
                 </div>
             </div>
+            {% endif %}
         </div>
     </section>
 
     <!-- ── MODE EXAMPLES ─────────────────────────────────── -->
     <section class="section section-dark">
         <div class="section-inner-wide">
-            <p class="section-label">18 conversation modes</p>
+            <p class="section-label">18 {% if lang == 'fi' %}keskustelutilaa{% elif lang == 'et' %}vestlusrežiimi{% else %}conversation modes{% endif %}</p>
+            {% if lang == 'fi' %}
+            <h2 class="section-title">Sinun ei tarvitse tietää mitä tilaa tarvitset. Sano vain mitä tunnet.</h2>
+            <p style="color:#C8BFA8; margin-bottom: 0;">Companion kuuntelee ja vastaa tavalla, joka sopii hetkeen. Tässä muutamia esimerkkejä siitä, miltä se näyttää.</p>
+            {% elif lang == 'et' %}
+            <h2 class="section-title">Sul pole vaja teada, millist režiimi vajad. Ütle lihtsalt, mida tunned.</h2>
+            <p style="color:#C8BFA8; margin-bottom: 0;">Companion kuulab ja vastab viisil, mis sobib hetke jaoks. Siin on mõned näited sellest, milline see välja näeb.</p>
+            {% else %}
             <h2 class="section-title">You do not need to know what mode you need. Just say what you feel.</h2>
             <p style="color:#C8BFA8; margin-bottom: 0;">Companion listens and responds in the way that fits the moment.
                 Here are some examples of what that looks like.</p>
+            {% endif %}
             <div class="mode-grid">
                 <div class="mode-card">
                     <p class="mode-trigger">I cannot start anything. I have been sitting here for an hour.</p>
@@ -831,11 +956,12 @@
                 </div>
             </div>
             <p style="color:#7A7060; font-size:0.85rem; margin-top:1.5rem; text-align:center;">
-                These are 6 of 18 modes. The full list: Calm, Mindfulness, Steady, Reality Check, Focus, Planning,
+                {% if lang == 'fi' %}Nämä ovat 6 kahdeksastatoista tilasta. Täydellinen luettelo:{% elif lang == 'et' %}Need on 6 kaheksateistkümnest režiimist. Täielik nimekiri:{% else %}These are 6 of 18 modes. The full list:{% endif %}
+                Calm, Mindfulness, Steady, Reality Check, Focus, Planning,
                 Decision, Reflection, Boundary, Daily Companion, Study, Read, Listen, Express, Feedback, Habit and Aim,
                 Relationship, and Help.
                 <br><a href="https://github.com/LiinaSuoniemi/companion_os#readme" target="_blank" rel="noopener"
-                    style="color: var(--color-accent);">Read the full description on GitHub →</a>
+                    style="color: var(--color-accent);">{% if lang == 'fi' %}Lue kuvaukset GitHubissa →{% elif lang == 'et' %}Loe kirjeldused GitHubis →{% else %}Read the full description on GitHub →{% endif %}</a>
             </p>
         </div>
     </section>
@@ -843,6 +969,53 @@
     <!-- ── TRANSPARENCY ───────────────────────────────────── -->
     <section class="section">
         <div class="section-inner">
+            {% if lang == 'fi' %}
+            <p class="section-label">Läpinäkyvyys</p>
+            <h2 class="section-title">Mitä Companion OS kerää. Ja mitä se ei koskaan tee.</h2>
+            <div class="two-col">
+                <div class="transparency-block collects">
+                    <h3>Mitä keräämme — suostumuksellasi</h3>
+                    <ul>
+                        <li>Viestisi, jotta voimme käydä keskustelun</li>
+                        <li>Anonyymiä käyttödataa, jotta ymmärrämme mikä auttaa</li>
+                        <li>Vapaaehtoisia kyselyvastauksia, vaikutuksen mittaamiseksi</li>
+                    </ul>
+                </div>
+                <div class="transparency-block never">
+                    <h3>Mitä emme koskaan tee</h3>
+                    <ul>
+                        <li>Emme koskaan diagnosoi tai kirjoita reseptejä</li>
+                        <li>Emme koskaan jaa tietojasi kolmansille osapuolille</li>
+                        <li>Emme koskaan tallenna dataa ilman nimenomaista suostumustasi</li>
+                        <li>Emme koskaan teeskentele olevamme ihminen</li>
+                        <li>Emme koskaan käytä tietojasi tekoälymallien kouluttamiseen</li>
+                    </ul>
+                </div>
+            </div>
+            {% elif lang == 'et' %}
+            <p class="section-label">Läbipaistvus</p>
+            <h2 class="section-title">Mida Companion OS kogub. Ja mida see kunagi ei tee.</h2>
+            <div class="two-col">
+                <div class="transparency-block collects">
+                    <h3>Mida kogume — sinu nõusolekul</h3>
+                    <ul>
+                        <li>Sinu sõnumid, et saada vestlust pidada</li>
+                        <li>Anonüümseid kasutusandmeid, et mõista, mis aitab</li>
+                        <li>Vabatahtlikke küsitlusvastuseid, tegeliku mõju mõõtmiseks</li>
+                    </ul>
+                </div>
+                <div class="transparency-block never">
+                    <h3>Mida me kunagi ei tee</h3>
+                    <ul>
+                        <li>Me ei diagnoosi ega kirjuta kunagi retsepte</li>
+                        <li>Me ei jaga sinu andmeid kunagi kolmandate osapooltega</li>
+                        <li>Me ei salvesta andmeid kunagi ilma sinu selgesõnalise nõusolekuta</li>
+                        <li>Me ei tee kunagi nägu, et oleme inimene</li>
+                        <li>Me ei kasuta sinu andmeid kunagi tehisintellektimudelite treenimiseks</li>
+                    </ul>
+                </div>
+            </div>
+            {% else %}
             <p class="section-label">Transparency</p>
             <h2 class="section-title">What Companion OS collects. And what it never does.</h2>
             <div class="two-col">
@@ -865,13 +1038,13 @@
                     </ul>
                 </div>
             </div>
+            {% endif %}
             <div class="gold-divider"></div>
             <p style="font-size:0.9rem; color: var(--color-text-muted);">
-                Want to verify this yourself? The code is open source.
-                <a href="https://github.com/LiinaSuoniemi/companion_os#readme" target="_blank" rel="noopener">Read the
-                    README on GitHub →</a>
-                It includes instructions on how to use AI to review the code for safety — so you do not have to take my
-                word for it.
+                {% if lang == 'fi' %}Haluatko tarkistaa itse? Koodi on avointa lähdekoodia.
+                <a href="https://github.com/LiinaSuoniemi/companion_os#readme" target="_blank" rel="noopener">Lue README GitHubissa →</a>{% elif lang == 'et' %}Tahad ise kontrollida? Kood on avatud lähtekoodiga.
+                <a href="https://github.com/LiinaSuoniemi/companion_os#readme" target="_blank" rel="noopener">Loe README GitHubis →</a>{% else %}Want to verify this yourself? The code is open source.
+                <a href="https://github.com/LiinaSuoniemi/companion_os#readme" target="_blank" rel="noopener">Read the README on GitHub →</a>{% endif %}
             </p>
         </div>
     </section>
@@ -879,6 +1052,23 @@
     <!-- ── IMPACT SURVEY ──────────────────────────────────── -->
     <section class="section section-alt">
         <div class="section-inner">
+            {% if lang == 'fi' %}
+            <p class="section-label">Vaikutuskysely</p>
+            <h2 class="section-title">Neljä kysymystä. Alussa ja neljän viikon jälkeen.</h2>
+            <div class="survey-box">
+                <p style="color: var(--color-text-muted);">Pilotin alussa Companion OS kysyy sinulta neljä lyhyttä kysymystä. Esimerkiksi: <em>Onko sinulla jotain kokeiltavaa silloin kun tuntuu ylivoimaiselta?</em> Vie kaksi minuuttia. Samat neljä kysymystä esitetään uudelleen neljän viikon kohdalla.</p>
+                <p style="color: var(--color-text-muted);">Nämä kysymykset eivät ole sinun arvostelemisesta. Ne ovat siitä, onko työkalu oikeasti hyödyksi arjessa — ei vain siitä, tuntuuko se mukavalta käyttää.</p>
+                <p style="color: var(--color-text-muted); margin-bottom: 0;">Vastauksesi ovat anonyymejä ja menevät suoraan Companion OS:n seuraavan version muokkaamiseen. Kysely on vapaaehtoinen. Voit ohittaa sen halutessasi.</p>
+            </div>
+            {% elif lang == 'et' %}
+            <p class="section-label">Mõjuküsitlus</p>
+            <h2 class="section-title">Neli küsimust. Alguses ja nelja nädala pärast.</h2>
+            <div class="survey-box">
+                <p style="color: var(--color-text-muted);">Pilootprojekti alguses küsib Companion OS sinult neli lühikest küsimust. Näiteks: <em>Kas sul on midagi proovida, kui tunned end ülekoormatuna?</em> Võtab kaks minutit. Samad neli küsimust ilmuvad uuesti nelja nädala pärast.</p>
+                <p style="color: var(--color-text-muted);">Need küsimused ei hinda sind. Need on selleks, et mõista, kas tööriist teeb igapäevaelus tegelikult vahet — mitte ainult seda, kas see tundub mõnus kasutada.</p>
+                <p style="color: var(--color-text-muted); margin-bottom: 0;">Sinu vastused on anonüümsed ja lähevad otse Companion OS järgmise versiooni kujundamisse. Küsitlus on vabatahtlik. Saad selle vahele jätta, kui eelistad.</p>
+            </div>
+            {% else %}
             <p class="section-label">Impact survey</p>
             <h2 class="section-title">Four questions. At the start and after four weeks.</h2>
             <div class="survey-box">
@@ -892,12 +1082,56 @@
                     into shaping the next version of Companion OS. The survey is optional. You can skip it if you
                     prefer.</p>
             </div>
+            {% endif %}
         </div>
     </section>
 
     <!-- ── PILOT DETAILS ──────────────────────────────────── -->
     <section class="section">
         <div class="section-inner">
+            {% if lang == 'fi' %}
+            <p class="section-label">Pilotti</p>
+            <h2 class="section-title">Neljä viikkoa. Pieni ryhmä. Aito keskustelu lopussa.</h2>
+            <div class="pilot-detail-grid">
+                <div class="pilot-detail">
+                    <h3>Kesto</h3>
+                    <p>Neljä viikkoa käyttöoikeutta. Yksi viikko lisäaikaa sen jälkeen. Ei kiirettä.</p>
+                </div>
+                <div class="pilot-detail">
+                    <h3>Ryhmän koko</h3>
+                    <p>Pieni, koska olen yksi ihminen. Haluan lukea jokaisen viestin, seurata jokaista testaajaa neljän viikon ajan ja käydä aidon keskustelun lopussa. Jos pilotti on täynnä, voit silti ottaa yhteyttä. Kerron mitä on mahdollista.</p>
+                </div>
+                <div class="pilot-detail">
+                    <h3>Mitä saat</h3>
+                    <p>Palautteesi muokkaa mitä tulee seuraavaksi.</p>
+                </div>
+                <div class="pilot-detail">
+                    <h3>Lopussa</h3>
+                    <p>Otan yhteyttä henkilökohtaisesti. Haluan kuulla mikä toimi, mikä ei, ja mitä olisit toivonut Companionin tietävän sinusta alusta alkaen.</p>
+                </div>
+            </div>
+            {% elif lang == 'et' %}
+            <p class="section-label">Piloot</p>
+            <h2 class="section-title">Neli nädalat. Väike grupp. Päris vestlus lõpus.</h2>
+            <div class="pilot-detail-grid">
+                <div class="pilot-detail">
+                    <h3>Kestus</h3>
+                    <p>Neli nädalat juurdepääsu. Üks nädal lisaaega pärast seda. Kiirustamata.</p>
+                </div>
+                <div class="pilot-detail">
+                    <h3>Grupi suurus</h3>
+                    <p>Väike, sest olen üks inimene. Tahan lugeda iga sõnumit, suhelda iga testijaga nelja nädala jooksul ja pidada lõpus päris vestlust. Kui piloot on täis, saad ikkagi ühendust võtta. Annan teada, mis on võimalik.</p>
+                </div>
+                <div class="pilot-detail">
+                    <h3>Mida saad</h3>
+                    <p>Sinu tagasiside kujundab seda, mis tuleb edasi.</p>
+                </div>
+                <div class="pilot-detail">
+                    <h3>Lõpus</h3>
+                    <p>Võtan isiklikult ühendust. Tahan kuulda, mis töötas, mis ei töötanud, ja mida oleksid soovinud, et Companion oleks sinust algusest peale teadnud.</p>
+                </div>
+            </div>
+            {% else %}
             <p class="section-label">The pilot</p>
             <h2 class="section-title">Four weeks. A small group. A real conversation at the end.</h2>
             <div class="pilot-detail-grid">
@@ -919,20 +1153,79 @@
                         Companion had known about you from the start.</p>
                 </div>
             </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ── FOR ORGANIZATIONS ────────────────────────────────── -->
+    <section class="section section-alt" id="organizations">
+        <div class="section-inner">
+            <p class="section-label">
+                {% if lang == 'fi' %}Organisaatioille{% elif lang == 'et' %}Organisatsioonidele{% else %}For organizations{% endif %}
+            </p>
+            <h2 class="section-title">
+                {% if lang == 'fi' %}Teillä on jo asiakkaita, jotka tarvitsevat tätä.{% elif lang == 'et' %}Teil on juba kliendid, kes vajavad seda.{% else %}You already work with people who need this.{% endif %}
+            </h2>
+            <p style="color: var(--color-text-muted);">
+                {% if lang == 'fi' %}Jos työskentelette haavoittuvassa asemassa olevien ihmisten kanssa — sosiaali- ja terveyspalveluissa, kuntoutuksessa, kouluissa tai vankilajärjestelmässä — Companion OS voi olla osa tarjoamaanne tukea. Organisaatio maksaa paikoista. Asiakkaanne käyttävät sitä ilmaiseksi.{% elif lang == 'et' %}Kui töötate haavatavate inimestega — sotsiaalteenustes, rehabilitatsioonis, koolides või kinnipidamisasutustes — saab Companion OS olla osa sellest toest, mida pakute. Organisatsioon maksab kohtade eest. Teie kliendid kasutavad seda tasuta.{% else %}If you work with people in vulnerable situations — in social services, rehabilitation, mental health support, education, or corrections — Companion OS can be part of what you offer them. Organizations pay per seat. The people you serve get free access.{% endif %}
+            </p>
+            <ul class="for-who-list" style="margin-top: 1.25rem;">
+                {% if lang == 'fi' %}
+                <li>Sosiaali- ja terveydenhuollon organisaatiot</li>
+                <li>Kuntoutuskeskukset ja päihdekuntoutusohjelmat</li>
+                <li>Koulut ja nuorisopalvelut</li>
+                <li>Veteraanien tukiorganisaatiot</li>
+                <li>Vankilat ja yhteiskuntaan sopeutumisohjelmat</li>
+                {% elif lang == 'et' %}
+                <li>Sotsiaal- ja tervishoiuorganisatsioonid</li>
+                <li>Rehabilitatsioonikeskused ja taastumisprogrammid</li>
+                <li>Koolid ja noorteorganisatsioonid</li>
+                <li>Veteranide tugiteenused</li>
+                <li>Kinnipidamisasutused ja ühiskonda tagasipöördumise programmid</li>
+                {% else %}
+                <li>Social and health care organizations</li>
+                <li>Rehabilitation centers and recovery programs</li>
+                <li>Schools and youth services</li>
+                <li>Veteran support organizations</li>
+                <li>Correctional facilities and reintegration programs</li>
+                {% endif %}
+            </ul>
+            <div class="gold-divider"></div>
+            <a href="{% url 'accounts:partnership' %}" class="btn-primary-warm" style="display:inline-block; margin-top: 0.5rem; text-decoration:none;">
+                {% if lang == 'fi' %}Tutustu kumppanuusmalliin →{% elif lang == 'et' %}Tutvu partnerlusmudeliga →{% else %}Explore the partnership model →{% endif %}
+            </a>
         </div>
     </section>
 
     <!-- ── APPLICATION FORM ───────────────────────────────── -->
     <section class="section section-dark" id="apply">
         <div class="section-inner" style="text-align:center;">
+            {% if lang == 'fi' %}
+            <p class="section-label">Pyydä käyttöoikeutta</p>
+            <h2 class="section-title">Kerro vähän itsestäsi.</h2>
+            <p>Ei pitkiä lomakkeita. Vain nimesi, sähköpostisi ja mikä toi sinut tänne. Luen jokaisen viestin itse.</p>
+            {% elif lang == 'et' %}
+            <p class="section-label">Taotle juurdepääsu</p>
+            <h2 class="section-title">Räägi mulle natuke enda kohta.</h2>
+            <p>Pikki ankeete pole. Ainult sinu nimi, e-post ja mis tõi sind siia. Loen iga sõnumi ise läbi.</p>
+            {% else %}
             <p class="section-label">Request access</p>
             <h2 class="section-title">Tell me a little about you.</h2>
             <p>No long forms. Just your name, email, and what brings you here. I read every message myself.</p>
+            {% endif %}
 
             {% if success %}
             <div class="success-box">
+                {% if lang == 'fi' %}
+                <h3>Selvä. Kiitos yhteydenotosta.</h3>
+                <p>Luen jokaisen viestin itse, joten vastaamiseen saattaa mennä muutama päivä. Kun vastaan, saat kutsukoodisi ja selkeät ohjeet sisäänkirjautumiseen.</p>
+                {% elif lang == 'et' %}
+                <h3>Selge. Tänan, et võtsid ühendust.</h3>
+                <p>Loen iga sõnumi ise, seega võib vastamine võtta mõne päeva. Kui vastan, saad oma kutsekoodi ja selged juhised sisselogimiseks.</p>
+                {% else %}
                 <h3>Got it. Thanks for reaching out.</h3>
                 <p>I read every message myself, so it may take a few days to reply. When I do, you will get your invite code and clear instructions for getting in.</p>
+                {% endif %}
             </div>
             {% else %}
             <div class="apply-card">
@@ -942,27 +1235,38 @@
                     <div class="error-msg">{{ error }}</div>
                     {% endif %}
                     <div class="mb-3">
-                        <label for="name" class="form-label small fw-medium">Your name</label>
-                        <input type="text" id="name" name="name" class="form-control" placeholder="First name is fine"
+                        <label for="name" class="form-label small fw-medium">
+                            {% if lang == 'fi' %}Nimesi{% elif lang == 'et' %}Sinu nimi{% else %}Your name{% endif %}
+                        </label>
+                        <input type="text" id="name" name="name" class="form-control"
+                            placeholder="{% if lang == 'fi' %}Etunimi riittää{% elif lang == 'et' %}Eesnimi sobib{% else %}First name is fine{% endif %}"
                             required>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label small fw-medium">Email address</label>
+                        <label for="email" class="form-label small fw-medium">
+                            {% if lang == 'fi' %}Sähköpostiosoite{% elif lang == 'et' %}E-posti aadress{% else %}Email address{% endif %}
+                        </label>
                         <input type="email" id="email" name="email" class="form-control"
-                            placeholder="Where I can reach you" required>
+                            placeholder="{% if lang == 'fi' %}Missä voin tavoittaa sinut{% elif lang == 'et' %}Kus saan sinuga ühendust võtta{% else %}Where I can reach you{% endif %}"
+                            required>
                     </div>
                     <div class="mb-3">
-                        <label for="what_brings_you" class="form-label small fw-medium">What brings you here?</label>
+                        <label for="what_brings_you" class="form-label small fw-medium">
+                            {% if lang == 'fi' %}Mikä toi sinut tänne?{% elif lang == 'et' %}Mis tõi sind siia?{% else %}What brings you here?{% endif %}
+                        </label>
                         <textarea id="what_brings_you" name="what_brings_you" class="form-control"
-                            placeholder="Tell me what made you reach out. A few sentences is enough."
+                            placeholder="{% if lang == 'fi' %}Kerro mikä sai sinut ottamaan yhteyttä. Muutama lause riittää.{% elif lang == 'et' %}Räägi, mis pani sind ühendust võtma. Mõni lause piisab.{% else %}Tell me what made you reach out. A few sentences is enough.{% endif %}"
                             required></textarea>
                     </div>
                     <div class="mt-4">
                         <button type="submit" class="btn-apply"
-                            style="font-size: 1rem; padding: 0.75rem 2rem; width: 100%;">Request access</button>
+                            style="font-size: 1rem; padding: 0.75rem 2rem; width: 100%;">
+                            {% if lang == 'fi' %}Pyydä käyttöoikeutta{% elif lang == 'et' %}Taotle juurdepääsu{% else %}Request access{% endif %}
+                        </button>
                     </div>
-                    <p class="form-note">By submitting you agree to the <a href="{% url 'privacy' %}">Privacy Policy</a>.
-                        Your information is never shared with third parties.</p>
+                    <p class="form-note">
+                        {% if lang == 'fi' %}Lähettämällä hyväksyt <a href="{% url 'privacy' %}">tietosuojaselosteen</a>. Tietojasi ei koskaan jaeta kolmansille osapuolille.{% elif lang == 'et' %}Esitades nõustud <a href="{% url 'privacy' %}">privaatsuspoliitikaga</a>. Sinu andmeid ei jagata kunagi kolmandate osapooltega.{% else %}By submitting you agree to the <a href="{% url 'privacy' %}">Privacy Policy</a>. Your information is never shared with third parties.{% endif %}
+                    </p>
                 </form>
             </div>
             {% endif %}
@@ -1015,6 +1319,32 @@
         document.getElementById('apply').scrollIntoView({ behavior: 'smooth' });
     </script>
     {% endif %}
+
+    <!-- Cookie consent — essential cookies only -->
+    <div id="cookie-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#1A1510; color:#C8BFA8; padding:0.85rem 1.5rem; z-index:9999; border-top:1px solid #3A3028;">
+        <div style="max-width:840px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+            <p style="margin:0; font-size:0.82rem; line-height:1.5;">
+                {% if lang == 'fi' %}Käytämme vain välttämättömiä evästeitä — istunnon hallintaan ja tietoturvaan. Ei analytiikkaa, ei seurantaa.{% elif lang == 'et' %}Kasutame ainult vajalikke küpsiseid — seansi haldamiseks ja turvalisuseks. Analüütikat ega jälgimist ei toimu.{% else %}This site uses essential cookies only — for your session and security. No analytics, no tracking.{% endif %}
+                <a href="{% url 'privacy' %}" style="color:#C9952A; text-decoration:underline;">
+                    {% if lang == 'fi' %}Tietosuojaseloste{% elif lang == 'et' %}Privaatsuspoliitika{% else %}Privacy Policy{% endif %}
+                </a>
+            </p>
+            <button id="cookie-ok" style="background:#C9952A; border:none; color:#1A1A1A; padding:0.4rem 1.25rem; border-radius:8px; font-size:0.82rem; font-weight:500; cursor:pointer; white-space:nowrap; flex-shrink:0;">
+                {% if lang == 'fi' %}Selvä{% elif lang == 'et' %}Selge{% else %}Got it{% endif %}
+            </button>
+        </div>
+    </div>
+    <script>
+        (function() {
+            if (!localStorage.getItem('cookies_ok')) {
+                document.getElementById('cookie-banner').style.display = 'block';
+            }
+            document.getElementById('cookie-ok').addEventListener('click', function() {
+                localStorage.setItem('cookies_ok', '1');
+                document.getElementById('cookie-banner').style.display = 'none';
+            });
+        })();
+    </script>
 </body>
 
 </html>

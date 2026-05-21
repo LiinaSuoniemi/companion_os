@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Privacy — Companion OS{% endblock %}
+{% block title %}Privacy: Companion OS{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -67,7 +67,9 @@
     <p class="privacy-updated">Last updated: May 2026</p>
 
     <h2>Who we are</h2>
-    <p>Companion OS is built and operated by Liina Suoniemi / InkNCode Solutions, based in Espoo, Finland.</p>
+    <p>Companion OS is built and operated by InkNCode Solutions<br>
+    (Y-tunnus 3422993-8), based in Espoo, Finland.<br>
+    Contact: Liina Suoniemi, hello@getcompanionos.com.</p>
 
     <h2>What Companion OS is</h2>
     <p>An educational cognitive support tool that teaches coping skills, grounding techniques, and self-awareness. It is not therapy. It is not a medical device. It does not diagnose, treat, or monitor any condition.</p>
@@ -81,16 +83,17 @@
         <li><strong>Safety events:</strong> if crisis keywords are detected, we log that a safety event happened, the severity level, and the time. We do NOT store what you said. Only a hashed signal that cannot be read back.</li>
         <li><strong>Usage data (only with your consent):</strong> which modes were used, how many tokens were processed, and timestamps. This helps us understand whether the tool is useful. You can opt out.</li>
         <li><strong>Impact survey (only with your consent):</strong> if you choose to fill in the optional survey at signup and after 4 weeks, your responses are stored anonymously to measure whether Companion OS makes a difference in daily life.</li>
+        <li><strong>Security logs:</strong> when you log in or register, we record the attempt time, whether it succeeded, your device and browser type, and the page you were accessing. This is used to detect and block repeated failed login attempts. These logs do not contain your password or any conversation content. They are kept for up to 30 days and then permanently deleted.</li>
     </ul>
 
-    <h2>What we do NOT collect</h2>
+    <h2>What we do not collect for user accounts</h2>
     <ul>
-        <li>Email addresses for accounts (only collected if you applied to the pilot through the landing page form)</li>
-        <li>Real names linked to accounts (only collected if you applied to the pilot)</li>
-        <li>Phone numbers</li>
-        <li>Location data</li>
-        <li>Payment information (there is no payment system)</li>
-        <li>Data from other apps or services</li>
+        <li><strong>Email addresses.</strong> Creating an account requires a username and password only. Emails are collected only if you filled in the pilot application form or the partnership inquiry form.</li>
+        <li><strong>Real names.</strong> You register with a username of your choice. Real names are collected only through the pilot application form and the partnership inquiry form.</li>
+        <li><strong>Phone numbers.</strong> Accounts do not require a phone number. The partnership inquiry form has an optional phone field. If you leave it blank, nothing is stored.</li>
+        <li><strong>GPS location or physical address.</strong> The partnership inquiry form asks for your country, which is used only to understand where potential partner organizations are based. We do not collect coordinates, street addresses, or any other location data.</li>
+        <li><strong>Payment information.</strong> There is no payment system.</li>
+        <li><strong>Data from other apps or services.</strong></li>
     </ul>
 
     <h2>Why we collect this data</h2>
@@ -104,6 +107,7 @@
     <h2>Legal basis for processing</h2>
     <p>Your conversation data is special category data under GDPR Article 9 (data concerning mental health). We process it based on your explicit consent, which you give when creating your account.</p>
     <p>Rate limiting (counting how many conversations you start per day) is necessary for providing the service and does not require separate consent.</p>
+    <p>Security logs (login attempt records) are processed under legitimate interest (GDPR Article 6(1)(f)) for the purpose of protecting user accounts against brute-force attacks.</p>
 
     <h2>How we protect your data</h2>
     <ul>
@@ -112,17 +116,18 @@
         <li>Safety events store a hashed signal only. The original text is never saved.</li>
         <li>Access is invite-only. No open registration.</li>
         <li>The app runs on Railway (cloud hosting). Data is transmitted over HTTPS.</li>
-        <li>A kill switch can shut the entire app off in under 60 seconds if something goes wrong.</li>
+        <li>There is a kill switch that can take the entire app offline as a safety measure.</li>
     </ul>
 
     <h2>How long we keep your data</h2>
     <ul>
         <li><strong>Account and conversations:</strong> until you delete your account. When you delete, your account, username, and all conversation content are permanently removed from the database. Not archived. Gone.</li>
-        <li><strong>Impact survey responses (if you consented):</strong> kept after account deletion with your user link removed. The responses become fully anonymous — there is no way to trace them back to you. This is the only way we can measure whether Companion OS actually helps people over time.</li>
+        <li><strong>Impact survey responses (if you consented):</strong> kept after account deletion with your user link removed. The responses become fully anonymous. There is no way to trace them back to you. This is the only way we can measure whether Companion OS actually helps people over time.</li>
         <li><strong>Usage data (if you consented):</strong> kept after account deletion with your user link removed. Mode and token counts become anonymous aggregate data. No conversation content is stored here.</li>
         <li><strong>Safety events:</strong> kept indefinitely as an anonymous audit trail. When you delete your account, the safety events remain but your user link is removed. They cannot be traced back to you.</li>
         <li><strong>Pilot application data:</strong> kept until you ask to be removed. Email <a href="mailto:hello@getcompanionos.com">hello@getcompanionos.com</a> and your name, email, and pilot answers are deleted from our records.</li>
         <li><strong>Partnership inquiry data:</strong> kept until the partnership conversation is concluded (either declined or active partnership) or you ask to be removed. Email <a href="mailto:hello@getcompanionos.com">hello@getcompanionos.com</a> and your organization's inquiry is deleted.</li>
+        <li><strong>Security logs:</strong> kept for up to 30 days, then permanently deleted. When you delete your account, your security logs are deleted immediately regardless of the 30-day period.</li>
     </ul>
 
     <h2>Who can access your data</h2>
@@ -153,14 +158,19 @@
     <h2>Your best protection</h2>
     <p>The single most useful habit when using any AI app, including this one, is to not paste anything you would not put into a search engine. Personal ID numbers (henkilötunnus, isikukood), home addresses combined with full birthdates, bank account numbers, PINs, passwords, security codes, and photos of identity documents do not belong in any AI conversation. Companion will gently note it if you share something sensitive and offer steps to protect yourself, but the safer habit is upstream: do not paste it in the first place.</p>
 
+    <h2>Cookies</h2>
+    <p>This site uses essential cookies only: a session cookie and a CSRF security token. These are required for the service to function. No analytics cookies. No tracking. The first time you visit, a banner explains this. You can dismiss it and it will not appear again on that device.</p>
+
     <h2>Your rights</h2>
     <p>Under GDPR you have the right to:</p>
     <ul>
         <li><strong>Access your data:</strong> you can see all your conversations in the app.</li>
         <li><strong>Delete your data:</strong> you can delete individual conversations or your entire account. Deletion is permanent.</li>
         <li><strong>Withdraw consent:</strong> you can stop using the service at any time and delete your account.</li>
+        <li><strong>Object or restrict processing:</strong> you can ask us to stop using your data in a specific way without deleting your account entirely. Contact hello@getcompanionos.com. We aim to respond within one month. If the request is complex or you submit several at once, it may take up to three months in total.</li>
         <li><strong>Complain:</strong> if you believe your data is being handled incorrectly, you can contact the Finnish Data Protection Authority (Tietosuojavaltuutetun toimisto) at <a href="https://tietosuoja.fi" target="_blank" rel="noopener">tietosuoja.fi</a>.</li>
     </ul>
+    <p style="font-size:0.9rem; color:#3A3530;">If the law requires it, or if there is an active legal dispute we need to document, we may keep relevant data longer than the periods described above.</p>
 
     <h2>Data export</h2>
     <p>Data export is not yet available as a self-service feature. If you need a copy of your data, contact us directly.</p>
@@ -170,7 +180,8 @@
 
     <div class="privacy-contact">
         <strong>Contact</strong><br>
-        Liina Suoniemi / InkNCode Solutions<br>
+        InkNCode Solutions (Y-tunnus 3422993-8)<br>
+        Liina Suoniemi<br>
         hello@getcompanionos.com<br>
         Espoo, Finland<br>
         Supervisory authority: <a href="https://tietosuoja.fi" target="_blank" rel="noopener">Tietosuojavaltuutetun toimisto</a>
