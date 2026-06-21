@@ -169,7 +169,11 @@ def _check_b64_chunks(text: str) -> tuple[bool, str]:
             for label, pattern in _CHECKS:
                 if pattern.search(decoded):
                     return True, f"{label}_b64encoded"
-        except Exception:
+        except ValueError:
+            # Not valid base64 (binascii.Error subclasses ValueError). A chunk
+            # that does not decode is expected here, so skip it. Narrowing to
+            # ValueError means a genuinely unexpected error would surface
+            # instead of being silently swallowed.
             continue
     return False, ""
 

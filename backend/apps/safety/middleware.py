@@ -32,7 +32,12 @@ Design decisions:
    the AI itself is paused, helplines remain reachable.
 """
 
+import logging
+
+from django.db import Error as DatabaseError
 from django.http import HttpResponse
+
+logger = logging.getLogger(__name__)
 
 
 class MaintenanceModeMiddleware:
@@ -50,8 +55,15 @@ class MaintenanceModeMiddleware:
         try:
             from apps.safety.models import SystemConfig
             config = SystemConfig.get()
-        except Exception:
-            # Fail-open: a DB error must not lock the operator out.
+        except DatabaseError:
+            # Fail-open on a database error: a DB outage must not lock the
+            # operator out (the kill switch is not the only kill path). But
+            # make the failure visible instead of silent, so a real DB problem
+            # is not mistaken for normal operation.
+            logger.error(
+                "MaintenanceModeMiddleware: could not read SystemConfig "
+                "(database error). Failing open and serving the request."
+            )
             return self.get_response(request)
 
         if config.maintenance_mode:

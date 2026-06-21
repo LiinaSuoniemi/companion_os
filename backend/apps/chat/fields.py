@@ -18,11 +18,13 @@ Because this is a safety-critical product. We want to understand exactly
 what the encryption does, not depend on a package we have not read.
 The code is simple enough to verify by hand.
 """
-import base64
+import logging
 
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 from django.conf import settings
 from django.db import models
+
+logger = logging.getLogger(__name__)
 
 
 def _get_fernet():
@@ -59,11 +61,24 @@ class EncryptedTextField(models.TextField):
         """Called when reading from the database. Decrypts the value."""
         if value is None:
             return value
+        # Fernet tokens always start with this prefix. If the stored value
+        # does not look like a token, it is legacy plaintext from before
+        # encryption was added. Return it unchanged (migration compatibility).
+        if not value.startswith("gAAAAA"):
+            return value
         try:
             f = _get_fernet()
             decrypted = f.decrypt(value.encode("utf-8"))
             return decrypted.decode("utf-8")
-        except Exception:
-            # If decryption fails, the data might be old unencrypted text.
-            # Return it as-is so existing data still works during migration.
-            return value
+        except InvalidToken:
+            # The value looks like an encrypted token but could not be
+            # decrypted. This is the dangerous case: a wrong or rotated
+            # FIELD_ENCRYPTION_KEY, or tampered/corrupted data. Do NOT
+            # silently return the stored ciphertext. Make the failure loud
+            # so it is caught, not hidden behind seemingly-normal reads.
+            logger.error(
+                "EncryptedTextField: value looks encrypted but could not be "
+                "decrypted. Check FIELD_ENCRYPTION_KEY (wrong/rotated key) or "
+                "possible data corruption."
+            )
+            raise
