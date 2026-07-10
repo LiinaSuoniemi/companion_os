@@ -10,8 +10,25 @@ python manage.py migrate --noinput
 # Uses Django's built-in --noinput flag which reads from environment variables.
 # Safe to run on every deploy — does nothing if user already exists.
 if [ -n "$DJANGO_SUPERUSER_USERNAME" ]; then
-    echo "=== Checking superuser ==="
+    echo "=== Ensuring superuser ==="
     python manage.py createsuperuser --noinput 2>/dev/null || echo "Superuser already exists"
+    # createsuperuser skips an existing user, so an auto-created superuser can end up
+    # with no usable password (unable to log in). Ensure the password and superuser
+    # flags match the env var on every deploy. Idempotent and safe.
+    if [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then
+        python manage.py shell -c "
+import os
+from django.contrib.auth import get_user_model
+U = get_user_model()
+u = U.objects.filter(username=os.environ['DJANGO_SUPERUSER_USERNAME']).first()
+if u:
+    u.set_password(os.environ['DJANGO_SUPERUSER_PASSWORD'])
+    u.is_staff = True
+    u.is_superuser = True
+    u.save()
+    print('=== Superuser password ensured for', u.username, '===')
+"
+    fi
 fi
 
 echo "=== Starting gunicorn on port $PORT ==="

@@ -64,12 +64,12 @@
     {# Back button: returns to whatever page the user came from. Falls back to home if there is no history. #}
     <a href="{% url 'home' %}" onclick="if (history.length > 1) { history.back(); return false; }" class="app-card-back-btn">← Back</a>
     <h1>Privacy Notice</h1>
-    <p class="privacy-updated">Last updated: May 2026</p>
+    <p class="privacy-updated">Last updated: July 2026</p>
 
     <h2>Who we are</h2>
-    <p>Companion OS is built and operated by InkNCode Solutions<br>
-    (Y-tunnus 3422993-8), based in Espoo, Finland.<br>
-    Contact: Liina Suoniemi, <a href="mailto:hello@getcompanionos.com">hello@getcompanionos.com</a>.</p>
+    <p>Companion OS is built and operated by Liina Suoniemi, based in Finland.<br>
+    The data controller is Liina Suoniemi. For any privacy question or request,
+    contact <a href="mailto:hello@getcompanionos.com">hello@getcompanionos.com</a>.</p>
 
     <h2>What Companion OS is</h2>
     <p>An educational cognitive support tool that teaches coping skills, grounding techniques, and self-awareness. It is not therapy. It is not a medical device. It does not diagnose, treat, or monitor any condition.</p>
@@ -77,8 +77,6 @@
     <h2>What data we collect</h2>
     <ul>
         <li><strong>Account data:</strong> your username and password (password is hashed, we cannot read it). At account creation we do not collect your real name, email, phone number, or location.</li>
-        <li><strong>Pilot application data (only if you applied):</strong> if you applied to the pilot through the application form on our landing page, we collected your name, email address, and a short answer about what brought you to Companion OS. Your email is used to contact you about the pilot, send you updates as Companion OS evolves, and let you know when new versions are ready. You can ask to be removed from this list at any time by emailing <a href="mailto:hello@getcompanionos.com">hello@getcompanionos.com</a>.</li>
-        <li><strong>Partnership inquiry data (only if you submitted one):</strong> if your organization submitted an inquiry through the partnership form, we collected your organization name, type of organization, country, the contact person's name, role, email, optional phone, optional description of who the organization serves, and what your organization is looking for. This is used only to evaluate the potential partnership and prepare for our conversation. It is never sold or shared with third parties. You can ask to be removed at any time by emailing <a href="mailto:hello@getcompanionos.com">hello@getcompanionos.com</a>.</li>
         <li><strong>Conversations:</strong> what you write and what the AI responds. This is stored so you can come back to past conversations. All conversation content is encrypted in the database.</li>
         <li><strong>Safety events:</strong> if crisis keywords are detected, we log that a safety event happened, the severity level, and the time. We do NOT store what you said. Only a hashed signal that cannot be read back.</li>
         <li><strong>Usage data (only with your consent):</strong> which modes were used, how many tokens were processed, and timestamps. This helps us understand whether the tool is useful. You can opt out.</li>
@@ -88,10 +86,10 @@
 
     <h2>What we do not collect for user accounts</h2>
     <ul>
-        <li><strong>Email addresses.</strong> Creating an account requires a username and password only. Emails are collected only if you filled in the pilot application form or the partnership inquiry form.</li>
-        <li><strong>Real names.</strong> You register with a username of your choice. Real names are collected only through the pilot application form and the partnership inquiry form.</li>
-        <li><strong>Phone numbers.</strong> Accounts do not require a phone number. The partnership inquiry form has an optional phone field. If you leave it blank, nothing is stored.</li>
-        <li><strong>GPS location or physical address.</strong> The partnership inquiry form asks for your country, which is used only to understand where potential partner organizations are based. We do not collect coordinates, street addresses, or any other location data.</li>
+        <li><strong>Email addresses.</strong> Creating an account requires a username and password only. We do not collect your email address.</li>
+        <li><strong>Real names.</strong> You register with a username of your choice. We do not collect your real name.</li>
+        <li><strong>Phone numbers.</strong> We do not collect phone numbers.</li>
+        <li><strong>GPS location or physical address.</strong> We do not collect coordinates, street addresses, or any other location data.</li>
         <li><strong>Payment information.</strong> There is no payment system.</li>
         <li><strong>Data from other apps or services.</strong></li>
     </ul>
@@ -125,8 +123,6 @@
         <li><strong>Impact survey responses (if you consented):</strong> kept after account deletion with your user link removed. The responses become fully anonymous. There is no way to trace them back to you. This is the only way we can measure whether Companion OS actually helps people over time.</li>
         <li><strong>Usage data (if you consented):</strong> kept after account deletion with your user link removed. Mode and token counts become anonymous aggregate data. No conversation content is stored here.</li>
         <li><strong>Safety events:</strong> kept indefinitely as an anonymous audit trail. When you delete your account, the safety events remain but your user link is removed. They cannot be traced back to you.</li>
-        <li><strong>Pilot application data:</strong> kept until you ask to be removed. Email <a href="mailto:hello@getcompanionos.com">hello@getcompanionos.com</a> and your name, email, and pilot answers are deleted from our records.</li>
-        <li><strong>Partnership inquiry data:</strong> kept until the partnership conversation is concluded (either declined or active partnership) or you ask to be removed. Email <a href="mailto:hello@getcompanionos.com">hello@getcompanionos.com</a> and your organization's inquiry is deleted.</li>
         <li><strong>Security logs:</strong> kept for up to 30 days, then permanently deleted. When you delete your account, your security logs are deleted immediately regardless of the 30-day period.</li>
     </ul>
 
@@ -180,10 +176,8 @@
 
     <div class="privacy-contact">
         <strong>Contact</strong><br>
-        InkNCode Solutions (Y-tunnus 3422993-8)<br>
         Liina Suoniemi<br>
         <a href="mailto:hello@getcompanionos.com">hello@getcompanionos.com</a><br>
-        Espoo, Finland<br>
         Supervisory authority: <a href="https://tietosuoja.fi" target="_blank" rel="noopener">Tietosuojavaltuutetun toimisto</a>
     </div>
 

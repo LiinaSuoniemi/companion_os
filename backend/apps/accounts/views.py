@@ -8,22 +8,15 @@ CBVs are easier to extend later (e.g. adding OAuth on top).
 """
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.core.cache import cache
-from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
 from django.shortcuts import redirect, render
 from django.utils.decorators import method_decorator
 from django.views import View
 
 from .forms import RegisterForm
-from .models import ImpactSurvey, PartnershipInquiry, PilotApplication
+from .models import ImpactSurvey
 
 
 SUPPORTED_LANGS = {"en", "fi", "et"}
-
-
-def _get_lang(request):
-    return request.session.get("ui_lang", "en")
 
 
 def set_language_pref(request):
@@ -35,13 +28,6 @@ def set_language_pref(request):
     if not next_url.startswith("/") or next_url.startswith("//"):
         next_url = "/"
     return redirect(next_url)
-
-
-def _get_client_ip(request):
-    forwarded = request.META.get("HTTP_X_FORWARDED_FOR")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.META.get("REMOTE_ADDR", "unknown")
 
 
 class RegisterView(View):
@@ -157,124 +143,6 @@ class ImpactSurveyView(View):
                 return "followup"
 
         return None
-
-
-class PilotApplicationView(View):
-    def _ctx(self, request, **kwargs):
-        return {"lang": _get_lang(request), **kwargs}
-
-    def post(self, request):
-        ip = _get_client_ip(request)
-        count = cache.get(f"rate_apply_{ip}", 0)
-        if count >= 5:
-            return render(request, "landing.html", self._ctx(request, error="Too many submissions. Please try again in an hour.", scroll_to_form=True))
-        cache.set(f"rate_apply_{ip}", count + 1, 3600)
-
-        name = request.POST.get("name", "").strip()[:200]
-        email = request.POST.get("email", "").strip()[:254]
-        what_brings_you = request.POST.get("what_brings_you", "").strip()[:2000]
-
-        if not name or not email or not what_brings_you:
-            return render(request, "landing.html", self._ctx(request, error="Please fill in all fields.", scroll_to_form=True))
-
-        try:
-            validate_email(email)
-        except ValidationError:
-            return render(request, "landing.html", self._ctx(request, error="Please enter a valid email address.", scroll_to_form=True))
-
-        if PilotApplication.objects.filter(email=email).exists():
-            return render(request, "landing.html", self._ctx(request, error="This email already reached out. I'll be in touch.", scroll_to_form=True))
-
-        PilotApplication.objects.create(name=name, email=email, what_brings_you=what_brings_you)
-        return render(request, "landing.html", self._ctx(request, success=True))
-
-
-class PartnershipInquiryView(View):
-    """
-    B2B partnership inquiries from organizations.
-
-    GET  → show the partnership inquiry page with form
-    POST → validate, save inquiry, show confirmation
-
-    For organizations interested in offering Companion OS to the people
-    they already serve. Different from PilotApplication (individuals).
-    """
-
-    template_name = "accounts/partnership.html"
-
-    def _ctx(self, request, **kwargs):
-        return {"lang": _get_lang(request), **kwargs}
-
-    def get(self, request):
-        return render(request, self.template_name, self._ctx(request))
-
-    def post(self, request):
-        ip = _get_client_ip(request)
-        count = cache.get(f"rate_partner_{ip}", 0)
-        if count >= 5:
-            return render(request, self.template_name, self._ctx(request, error="Too many submissions. Please try again in an hour."))
-        cache.set(f"rate_partner_{ip}", count + 1, 3600)
-
-        organization_name = request.POST.get("organization_name", "").strip()
-        contact_person = request.POST.get("contact_person", "").strip()
-        role = request.POST.get("role", "").strip()
-        email = request.POST.get("email", "").strip()
-        phone = request.POST.get("phone", "").strip()
-        organization_type = request.POST.get("organization_type", "other").strip()
-        country = request.POST.get("country", "fi").strip()
-        target_population = request.POST.get("target_population", "").strip()[:2000]
-        what_brings_you = request.POST.get("what_brings_you", "").strip()[:2000]
-
-        form_data = {
-            "organization_name": organization_name,
-            "contact_person": contact_person,
-            "role": role,
-            "email": email,
-            "phone": phone,
-            "organization_type": organization_type,
-            "country": country,
-            "target_population": target_population,
-            "what_brings_you": what_brings_you,
-        }
-
-        # Required fields validation
-        if not organization_name or not contact_person or not email or not what_brings_you:
-            return render(
-                request,
-                self.template_name,
-                self._ctx(request, error="Please fill in the required fields (organization, contact person, email, and what brings you).", form_data=form_data),
-            )
-
-        try:
-            validate_email(email)
-        except ValidationError:
-            return render(
-                request,
-                self.template_name,
-                self._ctx(request, error="Please enter a valid email address.", form_data=form_data),
-            )
-
-        # Validate organization_type and country are in choices (defensive — strict
-        # against POST tampering even though the form has a select element).
-        valid_org_types = {choice[0] for choice in PartnershipInquiry.ORG_TYPE_CHOICES}
-        valid_countries = {choice[0] for choice in PartnershipInquiry.COUNTRY_CHOICES}
-        if organization_type not in valid_org_types:
-            organization_type = "other"
-        if country not in valid_countries:
-            country = "other"
-
-        PartnershipInquiry.objects.create(
-            organization_name=organization_name,
-            contact_person=contact_person,
-            role=role,
-            email=email,
-            phone=phone,
-            organization_type=organization_type,
-            country=country,
-            target_population=target_population,
-            what_brings_you=what_brings_you,
-        )
-        return render(request, self.template_name, self._ctx(request, success=True))
 
 
 @method_decorator(login_required, name="dispatch")
