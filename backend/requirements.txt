@@ -21,7 +21,7 @@ cryptography==48.0.1
 django-axes==7.0.0
 
 # Admin 2FA — TOTP via Google Authenticator
-django-two-factor-auth==1.17.0
+django-two-factor-auth==1.18.1
 qrcode[pil]==7.4.2
 phonenumbers==8.13.50
 
