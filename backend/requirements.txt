@@ -18,7 +18,7 @@ redis==5.0.3
 cryptography==48.0.1
 
 # Login brute force protection
-django-axes==7.0.0
+django-axes==8.3.1
 
 # Admin 2FA — TOTP via Google Authenticator
 django-two-factor-auth==1.17.0
