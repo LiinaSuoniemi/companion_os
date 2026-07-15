@@ -22,7 +22,7 @@ django-axes==7.0.0
 
 # Admin 2FA — TOTP via Google Authenticator
 django-two-factor-auth==1.17.0
-qrcode[pil]==7.4.2
+qrcode[pil]==8.2
 phonenumbers==8.13.50
 
 # Production only
