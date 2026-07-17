@@ -424,6 +424,48 @@
         background-color: var(--color-bg);
         color: var(--color-text);
     }
+
+    /* ── Voice layer ── */
+    /* Mic button — same outlined shape as .call-btn, lives in .btn-stack */
+    .voice-btn {
+        flex-shrink: 0;
+        width: 42px; height: 42px;
+        border-radius: 50%;
+        background: none;
+        border: 1.5px solid var(--color-border);
+        color: var(--color-text-muted);
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+    }
+    .voice-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+    .voice-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    /* Inline mic sits on the mode-label line, so make it a touch smaller */
+    .voice-btn.mic-inline { width: 34px; height: 34px; }
+    .voice-btn.recording {
+        background-color: var(--color-accent);
+        border-color: var(--color-accent);
+        color: #FDFAF5;
+        animation: voicePulse 1.3s ease-in-out infinite;
+    }
+    @keyframes voicePulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(201,149,42,0.5); }
+        50%      { box-shadow: 0 0 0 6px rgba(201,149,42,0); }
+    }
+    /* Small speaker button on each Companion reply */
+    .speak-btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        margin-top: 0.5rem;
+        width: 26px; height: 26px;
+        border-radius: 50%;
+        background: none;
+        border: 1px solid var(--color-border);
+        color: var(--color-text-muted);
+        cursor: pointer;
+        transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    .speak-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+    .speak-btn.speaking { color: var(--color-accent); border-color: var(--color-accent); }
 </style>
 {% endblock %}
 
@@ -498,7 +540,7 @@
         <form method="post" class="input-row" id="chatForm">
             {% csrf_token %}
             <div class="mode-and-input">
-                <div style="text-align: center;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
                     <span class="mode-badge" id="modeBadge">
                     {% if conversation.active_mode == "auto" %}Listening
                     {% elif conversation.active_mode == "calm" %}With you
@@ -520,6 +562,14 @@
                     {% elif conversation.active_mode == "help" %}Orienting
                     {% else %}{{ conversation.active_mode }}{% endif %}
                     </span>
+                    <button type="button" class="voice-btn mic-inline" id="micBtn" aria-label="Speak your message" title="Speak your message">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                    </button>
                 </div>
                 <div id="msgLengthWarning" style="display:none; text-align:center; font-size:0.8rem; color:#c0392b;"></div>
                 <textarea
@@ -533,12 +583,6 @@
                 ></textarea>
             </div>
             <div class="btn-stack">
-                <button type="button" class="call-btn" id="callBtn" aria-label="Get help making a call" title="Get help making a call">
-                    <!-- Phone handset icon -->
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.37 12 19.79 19.79 0 0 1 1.21 3.22 2 2 0 0 1 3.2 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"></path>
-                    </svg>
-                </button>
                 <button type="submit" class="send-btn" id="sendBtn" aria-label="Send message">
                     <!-- Send arrow icon -->
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -558,7 +602,6 @@
     const messageArea = document.getElementById('messageArea');
     const input = document.getElementById('messageInput');
     const sendBtn = document.getElementById('sendBtn');
-    const callBtn = document.getElementById('callBtn');
     const modeBadge = document.getElementById('modeBadge');
     const streamUrl = "{% url 'chat:stream' pk=conversation.pk %}";
     const csrfToken = "{{ csrf_token }}";
@@ -632,11 +675,6 @@
         if (input.value.trim()) sendMessage();
     });
 
-    // Call button click — triggers call-prep behavior
-    callBtn.addEventListener('click', function () {
-        if (!callBtn.disabled) triggerCallPrep();
-    });
-
     function sendMessage(overrideText, extraPayload) {
         const text = overrideText !== undefined ? overrideText : input.value.trim();
         if (!text) return;
@@ -654,7 +692,6 @@
             input.style.height = 'auto';
         }
         sendBtn.disabled = true;
-        callBtn.disabled = true;
 
         // Create empty assistant bubble that will fill in as tokens arrive
         const assistantBubble = appendBubble('assistant', '');
@@ -714,15 +751,14 @@
                                 }
                                 // Re-enable inputs
                                 sendBtn.disabled = false;
-                                callBtn.disabled = false;
                                 input.focus();
+                                addSpeakerButton(assistantBubble);
                             }
 
                             if (data.error) {
                                 assistantBubble.textContent = data.error;
                                 assistantBubble.style.opacity = '0.6';
                                 sendBtn.disabled = false;
-                                callBtn.disabled = false;
                             }
 
                         } catch (e) {
@@ -739,7 +775,6 @@
             assistantBubble.textContent = 'Could not connect. Try again.';
             assistantBubble.style.opacity = '0.6';
             sendBtn.disabled = false;
-            callBtn.disabled = false;
         });
     }
 
@@ -756,16 +791,6 @@
         // ä/ö appear in Finnish; check Finnish-specific words
         if (/[äöÄÖ]/.test(text) || /\b(sinä|voisi|tuntuu|onko|että|minä|miten)\b/i.test(text)) return 'fi';
         return 'en';
-    }
-
-    function triggerCallPrep() {
-        const lang = detectChatLang();
-        const msgs = {
-            en: 'I need help making a call',
-            fi: 'Tarvitsen apua puhelun soittamisessa',
-            et: 'Mul on abi vaja kõne tegemiseks',
-        };
-        sendMessage(msgs[lang], { call_prep: true });
     }
 
     // Convert plain text to safe HTML paragraphs — for assistant bubbles only.
@@ -828,5 +853,101 @@
         messageArea.scrollTop = messageArea.scrollHeight;
         return bubble;
     }
+
+    // ── Voice input (mic → Whisper) ────────────────────────────────
+    // SAFETY: the mic ONLY transcribes. Text lands in the input box and the
+    // person sends it the normal way, so injection detection, crisis logging,
+    // and encryption still run in StreamView. Never auto-send, never store audio.
+    const micBtn = document.getElementById('micBtn');
+    let mediaRecorder = null;
+    let audioChunks = [];
+
+    micBtn.addEventListener('click', async function () {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();            // second tap = stop + transcribe
+            return;
+        }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            mediaRecorder.addEventListener('dataavailable', e => audioChunks.push(e.data));
+            mediaRecorder.addEventListener('stop', sendAudioForTranscription);
+            mediaRecorder.start();
+            micBtn.classList.add('recording');
+        } catch (err) {
+            console.error('Mic unavailable:', err);
+        }
+    });
+
+    function sendAudioForTranscription() {
+        micBtn.classList.remove('recording');
+        if (mediaRecorder && mediaRecorder.stream) {
+            mediaRecorder.stream.getTracks().forEach(t => t.stop());
+        }
+        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+        const form = new FormData();
+        form.append('audio', blob, 'speech.webm');
+        form.append('lang', detectChatLang());
+
+        fetch('/chat/stt/', {                          // endpoint Niina builds in voice.py
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken },
+            body: form,
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.text) {
+                input.value = data.text;               // into the box, NOT auto-sent
+                input.dispatchEvent(new Event('input'));
+                input.focus();
+            }
+        })
+        .catch(() => console.error('Transcription failed'));
+    }
+
+    // ── Voice output (reply → Supertonic-3) ────────────────────────
+    let currentAudio = null;
+
+    function addSpeakerButton(bubble) {
+        if (bubble.querySelector('.speak-btn')) return;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'speak-btn';
+        btn.setAttribute('aria-label', 'Play this reply out loud');
+        btn.innerHTML =
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+            '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>' +
+            '<path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>' +
+            '<path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+        btn.addEventListener('click', () => speakBubble(bubble, btn));
+        bubble.appendChild(btn);
+    }
+
+    function speakBubble(bubble, btn) {
+        if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+        const text = bubble.textContent.replace(/\s+/g, ' ').trim();
+        if (!text) return;
+        btn.classList.add('speaking');
+
+        fetch('/chat/tts/', {                          // endpoint Niina builds in voice.py
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+            body: JSON.stringify({ text: text, lang: detectChatLang() }),
+        })
+        .then(r => r.blob())
+        .then(blob => {
+            const url = URL.createObjectURL(blob);
+            currentAudio = new Audio(url);
+            currentAudio.addEventListener('ended', () => {
+                btn.classList.remove('speaking');
+                URL.revokeObjectURL(url);
+            });
+            currentAudio.play();
+        })
+        .catch(() => btn.classList.remove('speaking'));
+    }
+
+    document.querySelectorAll('.message-assistant').forEach(addSpeakerButton);
 </script>
 {% endblock %}

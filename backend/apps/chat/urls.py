@@ -11,6 +11,9 @@ from django.urls import path
 
 from . import views
 
+from . import voice
+
+
 app_name = "chat"
 
 urlpatterns = [
@@ -20,4 +23,6 @@ urlpatterns = [
     path("new/", views.NewConversationView.as_view(), name="new_conversation"),
     path("<int:pk>/rename/", views.RenameConversationView.as_view(), name="rename_conversation"),
     path("<int:pk>/delete/", views.DeleteConversationView.as_view(), name="delete_conversation"),
+    path("tts/", voice.tts, name="tts"),
+    path("stt/", voice.stt, name="stt"),
 ]
