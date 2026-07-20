@@ -24,6 +24,10 @@ services:
       - POSTGRES_PASSWORD=companion_dev_password
       - POSTGRES_HOST=db
       - REDIS_URL=redis://redis:6379/0
+      # Local dev only: "medium" Whisper for more accurate dictation on a dev
+      # machine with enough RAM (WSL raised to 11GB). The live server ignores
+      # this file and defaults to "small" in code, so production stays safe.
+      - WHISPER_MODEL=medium
     depends_on:
       db:
         condition: service_healthy

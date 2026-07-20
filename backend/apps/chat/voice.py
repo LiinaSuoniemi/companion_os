@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
@@ -28,11 +29,13 @@ def get_whisper():
     global _whisper
     if _whisper is None:
         from faster_whisper import WhisperModel  # lazy: heavy import
-        # "medium" for ACCURACY (far fewer Finnish/Estonian misreads than "small").
-        # It needs ~11GB in the container — set locally via .wslconfig. This is a
-        # LOCAL-ONLY choice for Liina's own dictation; the smaller live server can
-        # only run "small", so do NOT ship "medium" to production without more RAM.
-        _whisper = WhisperModel("medium", device="cpu", compute_type="int8")
+        # Model size is env-configurable. Default "small" is SERVER-SAFE (fits the
+        # live container). "medium" is more accurate (far fewer Finnish/Estonian
+        # misreads) but needs ~11GB, so it only runs where RAM allows. Set
+        # WHISPER_MODEL=medium on a dev machine with enough RAM (WSL raised to
+        # 11GB). Never set "medium" on the live server (OOM = exit 247).
+        model_size = os.environ.get("WHISPER_MODEL", "small")
+        _whisper = WhisperModel(model_size, device="cpu", compute_type="int8")
     return _whisper
 
 @login_required
