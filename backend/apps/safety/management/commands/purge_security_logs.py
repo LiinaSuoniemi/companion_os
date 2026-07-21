@@ -12,31 +12,20 @@ Railway production:
 Local Docker:
     docker compose exec web python manage.py purge_security_logs
 
-Run this once a month to honour the 30-day retention period stated
-in the privacy policy. Add to a Railway cron job if you want it automated.
+This is the manual entry point. The same purge also runs automatically once a
+day via DailySecurityLogPurgeMiddleware, so the 30-day retention holds without
+any external scheduler. Run this command any time you want to purge on demand.
 """
-import logging
-from datetime import timedelta
-
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 
-logger = logging.getLogger(__name__)
+from apps.safety.purge import purge_old_security_logs
 
 
 class Command(BaseCommand):
     help = "Delete axes login attempt records older than 30 days."
 
     def handle(self, *args, **options):
-        from axes.models import AccessAttempt, AccessLog
-
-        cutoff = timezone.now() - timedelta(days=30)
-
-        attempts_deleted, _ = AccessAttempt.objects.filter(attempt_time__lt=cutoff).delete()
-        logs_deleted, _ = AccessLog.objects.filter(attempt_time__lt=cutoff).delete()
-
-        total = attempts_deleted + logs_deleted
-        logger.info("purge_security_logs: deleted %d records older than 30 days.", total)
+        total = purge_old_security_logs()
         self.stdout.write(self.style.SUCCESS(
             f"Deleted {total} security log records older than 30 days."
         ))

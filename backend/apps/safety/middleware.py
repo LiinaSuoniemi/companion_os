@@ -34,6 +34,7 @@ Design decisions:
 
 import logging
 
+from django.core.cache import cache
 from django.db import Error as DatabaseError
 from django.http import HttpResponse
 
@@ -74,6 +75,45 @@ class MaintenanceModeMiddleware:
             )
 
         return self.get_response(request)
+
+
+class DailySecurityLogPurgeMiddleware:
+    """Runs the 30-day security-log purge at most once per day, in-process.
+
+    django-axes login records are only removed by an explicit purge. Instead of
+    depending on an external scheduler (a Railway cron that must be set up by
+    hand and is easy to forget, which is exactly how these logs were piling up),
+    this fires the purge in the app itself, gated by a 24h cache lock so it runs
+    at most once a day. It travels with the app to any host.
+
+    cache.add() sets the lock only if it is absent and returns True, so the first
+    request after the lock expires runs the purge and every other request in the
+    window is one cheap cache read that skips it. The purge runs after the
+    response is produced.
+
+    Fail-open by design: a purge error is logged loudly and swallowed. A cleanup
+    task must never break a page for a user. The broad except is deliberate for
+    that reason, and logger.exception keeps any real failure visible.
+    """
+
+    LOCK_KEY = "security_log_purge_ran"
+    LOCK_TTL = 60 * 60 * 24  # 24 hours
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        try:
+            if cache.add(self.LOCK_KEY, "1", self.LOCK_TTL):
+                from apps.safety.purge import purge_old_security_logs
+                purge_old_security_logs()
+        except Exception:
+            logger.exception(
+                "DailySecurityLogPurgeMiddleware: purge failed; ignored so the "
+                "request is unaffected."
+            )
+        return response
 
 
 def _maintenance_html(message: str) -> str:

@@ -66,6 +66,9 @@ MIDDLEWARE = [
     "django_otp.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # Runs the 30-day security-log purge at most once a day, in-process.
+    # Keeps the retention promise without an external scheduler. Fail-open.
+    "apps.safety.middleware.DailySecurityLogPurgeMiddleware",
 ]
 
 # Axes needs its backend before Django's default so it can intercept locked accounts.
@@ -126,6 +129,8 @@ LOCALE_PATHS = [BASE_DIR / "locale"]
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+# Project-level static sources (self-hosted fonts + Bootstrap live here).
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
