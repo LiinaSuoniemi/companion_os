@@ -97,8 +97,12 @@ In an invite-only pilot since May 2026, not open to the public.
 
 ## Built by
 
-Liina Suoniemi / [InkNCode Solutions](https://www.linkedin.com/in/liina-suoniemi)
+[Liina Suoniemi](https://www.linkedin.com/in/liina-suoniemi)
 
 ## License
 
-Licensed under the MIT License. See `LICENSE` for details.
+Copyright (c) 2026 Liina Suoniemi.
+
+Licensed under the GNU Affero General Public License v3.0 (AGPL-3.0). See `LICENSE` for the full text.
+
+In plain terms: you are free to use, study, and modify this code. But if you run a modified version as a network service, you must make your modified source available to its users under the same license. This keeps the safety protections from being quietly stripped out of a private fork.
