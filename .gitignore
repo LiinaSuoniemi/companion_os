@@ -20,3 +20,48 @@ reviews/
 # Local tool configs that should never reach the public repo
 .claude/
 .firecrawl/
+# ---------------------------------------------------------------------------
+# Added 2026-09-07. This repo is PUBLIC. These patterns exist so the current
+# clean state is enforced rather than maintained by memory.
+# ---------------------------------------------------------------------------
+
+# Secrets. .env was already here; these are the variants and the neighbours.
+.env.*
+!.env.example
+*.key
+*.pem
+secrets/
+.secrets/
+credentials.json
+service-account*.json
+
+# BACKUP.md names WHERE a complete copy of the user database lives. That is a
+# higher value target than the live system, because backups are less monitored.
+# Losing the file is recoverable. Leaking the location is not.
+BACKUP.md
+
+# Anything marked private stays local.
+PRIVATE-*
+private/
+
+# Data. Dumps, databases and anything a user typed.
+*.sqlite
+*.db
+*.dump
+*.sql
+backups/
+
+# Tool caches
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+node_modules/
+dist/
+build/
+*.egg-info/
+
+# OS noise
+.DS_Store
+Thumbs.db
